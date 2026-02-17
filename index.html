@@ -11,22 +11,21 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <!-- Optional: add analytics if needed -->
+    <!-- <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-analytics-compat.js"></script> -->
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-        
         * { box-sizing: border-box; }
-        
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f8fafc;
             color: #1e293b;
             line-height: 1.6;
         }
-        
         .btn-primary {
             background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
             color: white;
@@ -41,12 +40,10 @@
             gap: 0.5rem;
             box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
         }
-        
         .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
         }
-        
         .btn-gold {
             background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
             color: white;
@@ -61,12 +58,10 @@
             gap: 0.5rem;
             box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.2);
         }
-        
         .btn-gold:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.3);
         }
-        
         .google-btn {
             background: white;
             color: #444;
@@ -84,13 +79,11 @@
             width: 100%;
             justify-content: center;
         }
-        
         .google-btn:hover {
             border-color: #4285f4;
             box-shadow: 0 4px 8px rgba(0,0,0,0.15);
             transform: translateY(-1px);
         }
-        
         .card {
             background: white;
             border: 1px solid #e2e8f0;
@@ -99,7 +92,6 @@
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
             transition: transform 0.2s;
         }
-        
         nav {
             background: white;
             border-bottom: 1px solid #e2e8f0;
@@ -108,7 +100,6 @@
             top: 0;
             z-index: 50;
         }
-        
         .nav-content {
             max-width: 1200px;
             margin: 0 auto;
@@ -117,18 +108,15 @@
             justify-content: space-between;
             align-items: center;
         }
-        
         .main-container {
             max-width: 800px;
             margin: 0 auto;
             padding: 2rem 1rem;
         }
-        
         .hero {
             text-align: center;
             padding: 2rem 0;
         }
-        
         .hero h1 {
             font-size: 2.5rem;
             font-weight: 800;
@@ -136,7 +124,6 @@
             margin-bottom: 1rem;
             line-height: 1.2;
         }
-        
         .coin-display {
             background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
             border: 3px solid #f59e0b;
@@ -147,7 +134,6 @@
             overflow: hidden;
             box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.2);
         }
-        
         .coin-display::before {
             content: '';
             position: absolute;
@@ -158,12 +144,10 @@
             background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%);
             animation: shimmer 3s infinite linear;
         }
-        
         @keyframes shimmer {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        
         .coin-amount {
             font-size: 3rem;
             font-weight: 800;
@@ -171,14 +155,12 @@
             position: relative;
             z-index: 1;
         }
-        
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1rem;
             margin: 2rem 0;
         }
-        
         .stat-card {
             background: white;
             border: 1px solid #e2e8f0;
@@ -187,12 +169,10 @@
             text-align: center;
             transition: all 0.2s;
         }
-        
         .stat-card:hover {
             border-color: #f59e0b;
             transform: translateY(-2px);
         }
-        
         .stat-icon {
             width: 56px;
             height: 56px;
@@ -206,7 +186,6 @@
             font-size: 1.75rem;
             border: 2px solid #f59e0b;
         }
-        
         .referral-box {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -216,7 +195,6 @@
             position: relative;
             overflow: hidden;
         }
-        
         .usdt-lock-box {
             background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
             border: 3px solid #f59e0b;
@@ -227,7 +205,6 @@
             position: relative;
             overflow: hidden;
         }
-        
         .converter-box {
             background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
             border: 2px solid #059669;
@@ -236,7 +213,6 @@
             margin: 2rem 0;
             text-align: center;
         }
-        
         .conversion-rate {
             display: inline-flex;
             align-items: center;
@@ -248,7 +224,6 @@
             margin: 1rem 0;
             border: 2px solid #f59e0b;
         }
-        
         footer {
             background: #0f172a;
             color: #cbd5e1;
@@ -256,31 +231,23 @@
             margin-top: 4rem;
             text-align: center;
         }
-        
         .hidden { display: none !important; }
-        
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
         .animate-fade-in { animation: fadeIn 0.3s ease-out; }
-        
         @keyframes float {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-10px); }
         }
-        
         .float-animation { animation: float 3s ease-in-out infinite; }
-        
         @keyframes coinPop {
             0% { transform: scale(1); }
             50% { transform: scale(1.2); }
             100% { transform: scale(1); }
         }
-        
         .coin-pop { animation: coinPop 0.3s ease-out; }
-        
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -291,7 +258,6 @@
             justify-content: center;
             padding: 1rem;
         }
-        
         .modal-content {
             background: white;
             width: 100%;
@@ -302,14 +268,12 @@
             max-height: 80vh;
             overflow-y: auto;
         }
-        
         .timer-display {
             font-size: 4rem;
             font-weight: 800;
             color: #2563eb;
             font-family: monospace;
         }
-        
         .progress-bar {
             width: 100%;
             height: 8px;
@@ -318,14 +282,12 @@
             overflow: hidden;
             margin: 1rem 0;
         }
-        
         .progress-fill {
             height: 100%;
             background: linear-gradient(90deg, #059669, #10b981);
             width: 0%;
             transition: width 0.1s linear;
         }
-        
         .coin-badge {
             display: inline-flex;
             align-items: center;
@@ -338,7 +300,6 @@
             font-size: 1rem;
             border: 2px solid #f59e0b;
         }
-        
         .usdt-badge {
             display: inline-flex;
             align-items: center;
@@ -351,7 +312,6 @@
             font-size: 1rem;
             border: 2px solid #2563eb;
         }
-        
         .smartlink-btn {
             background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
             color: white;
@@ -370,12 +330,10 @@
             width: 100%;
             box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.3);
         }
-        
         .smartlink-btn:hover {
             transform: translateY(-3px);
             box-shadow: 0 20px 25px -5px rgba(245, 158, 11, 0.4);
         }
-        
         .withdraw-option {
             background: #f8fafc;
             border: 2px solid #e2e8f0;
@@ -385,18 +343,15 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-        
         .withdraw-option:hover {
             border-color: #f59e0b;
             background: #fffbeb;
             transform: translateY(-2px);
         }
-        
         .withdraw-option.selected {
             border-color: #059669;
             background: #d1fae5;
         }
-        
         .toast {
             position: fixed;
             bottom: 2rem;
@@ -415,12 +370,10 @@
             z-index: 200;
             border-left: 4px solid #059669;
         }
-        
         .toast.show {
             opacity: 1;
             transform: translateX(-50%) translateY(0);
         }
-        
         .ad-counter {
             background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
             border: 2px solid #f59e0b;
@@ -429,7 +382,6 @@
             text-align: center;
             margin-bottom: 1.5rem;
         }
-        
         .pulse-ring {
             position: absolute;
             width: 100%;
@@ -437,12 +389,10 @@
             border-radius: 50%;
             animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
         }
-        
         @keyframes pulse-ring {
             0% { transform: scale(0.8); opacity: 0.8; }
             100% { transform: scale(1.3); opacity: 0; }
         }
-        
         .divider {
             display: flex;
             align-items: center;
@@ -450,7 +400,6 @@
             color: #64748b;
             font-size: 0.875rem;
         }
-        
         .divider::before,
         .divider::after {
             content: '';
@@ -459,7 +408,6 @@
             background: #e2e8f0;
             margin: 0 1rem;
         }
-        
         .locked-badge {
             display: inline-flex;
             align-items: center;
@@ -471,7 +419,6 @@
             font-size: 0.875rem;
             font-weight: 600;
         }
-        
         .error-box {
             background: #fef2f2;
             border: 2px solid #dc2626;
@@ -481,11 +428,9 @@
             color: #991b1b;
             display: none;
         }
-        
         .error-box.show {
             display: block;
         }
-        
         footer a {
             color: #94a3b8;
             text-decoration: none;
@@ -501,7 +446,7 @@
 </head>
 <body>
 
-    <!-- Navigation (unchanged) -->
+    <!-- Navigation -->
     <nav>
         <div class="nav-content">
             <div style="display: flex; align-items: center; gap: 0.75rem;">
@@ -527,7 +472,7 @@
 
     <main class="main-container">
         
-        <!-- Auth Section (unchanged) -->
+        <!-- Auth Section -->
         <div id="auth-section" class="animate-fade-in">
             <div class="hero">
                 <div style="display: inline-block; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); padding: 0.5rem 1rem; border-radius: 20px; margin-bottom: 1rem; border: 2px solid #f59e0b;">
@@ -622,10 +567,10 @@
             </div>
         </div>
 
-        <!-- Dashboard Section (modified: added referral input) -->
+        <!-- Dashboard Section -->
         <div id="dashboard-section" class="hidden animate-fade-in">
             
-            <!-- Welcome (unchanged) -->
+            <!-- Welcome -->
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
                 <div style="display: flex; align-items: center; gap: 1rem;">
                     <div style="position: relative;">
@@ -639,7 +584,7 @@
                 </div>
             </div>
             
-            <!-- Coin Balance Display (unchanged) -->
+            <!-- Coin Balance Display -->
             <div class="coin-display" style="margin-bottom: 2rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
                     <div style="text-align: left; z-index: 1;">
@@ -661,7 +606,7 @@
                 </div>
             </div>
             
-            <!-- Stats Grid (unchanged) -->
+            <!-- Stats Grid -->
             <div class="stats-grid" style="margin-bottom: 2rem;">
                 <div class="stat-card" style="border-left: 4px solid #f59e0b;">
                     <div style="font-size: 0.875rem; color: #64748b; font-weight: 600;">Ads Watched Today</div>
@@ -693,7 +638,7 @@
                 </div>
             </div>
             
-            <!-- Conversion Calculator (unchanged) -->
+            <!-- Conversion Calculator -->
             <div class="converter-box">
                 <h3 style="font-size: 1.25rem; font-weight: 700; color: #065f46; margin-bottom: 1rem;">
                     <i class="fas fa-calculator" style="margin-right: 0.5rem;"></i>Coin Conversion Calculator
@@ -715,7 +660,7 @@
                 </p>
             </div>
             
-            <!-- Main Task Area (unchanged) -->
+            <!-- Main Task Area -->
             <div class="card" style="text-align: center; padding: 3rem 2rem; border: 3px solid #f59e0b; background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);">
                 
                 <div class="ad-counter">
@@ -779,7 +724,7 @@
                 </div>
             </div>
             
-            <!-- Referral Section (unchanged) -->
+            <!-- Referral Section -->
             <div class="referral-box">
                 <div style="text-align: center; margin-bottom: 1.5rem;">
                     <div style="width: 80px; height: 80px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
@@ -850,7 +795,7 @@
                 </div>
             </div>
             
-            <!-- ========== NEW: REFERRAL CODE INPUT SECTION ========== -->
+            <!-- NEW: REFERRAL CODE INPUT SECTION -->
             <div id="referral-input-section" class="card" style="margin-top: 2rem; border: 2px solid #f59e0b;">
                 <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; color: #0f172a;">
                     <i class="fas fa-ticket-alt" style="color: #f59e0b; margin-right: 0.5rem;"></i>Have a referral code?
@@ -867,7 +812,7 @@
                 <div id="referral-message" style="font-size: 0.875rem; margin-top: 0.75rem; color: #4b5563;"></div>
             </div>
             
-            <!-- Withdrawal Section (unchanged) -->
+            <!-- Withdrawal Section -->
             <div class="card" style="margin-top: 2rem; border: 2px solid #e2e8f0;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
                     <div>
@@ -939,7 +884,7 @@
         </p>
     </footer>
 
-    <!-- Info Modals (unchanged) -->
+    <!-- Info Modals -->
     <div id="info-modal" class="modal-overlay">
         <div class="modal-content">
             <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 1.5rem; text-align: center;">
@@ -954,7 +899,7 @@
         </div>
     </div>
 
-    <!-- Withdrawal Modal (unchanged) -->
+    <!-- Withdrawal Modal -->
     <div id="withdraw-modal" class="modal-overlay">
         <div class="modal-content">
             <div style="background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; padding: 1.5rem; text-align: center;">
@@ -1007,24 +952,27 @@
     </div>
 
     <script>
-        // ==================== FIREBASE CONFIG ====================
+        // ==================== FIREBASE CONFIG (UPDATED) ====================
         const firebaseConfig = {
-            apiKey: "AIzaSyC_upD5_aPjr2za4CzTJEA0l9lflGWyifw",
-            authDomain: "cointab-f3b00.firebaseapp.com",
-            projectId: "cointab-f3b00",
-            storageBucket: "cointab-f3b00.firebasestorage.app",
-            messagingSenderId: "929666382798",
-            appId: "1:929666382798:web:39ce5bc3f3dc97956a099f",
-            measurementId: "G-0GEXW812N6"
+            apiKey: "AIzaSyDcBHgYECS0ywgla_NfEf5Y3HOlD1QF4y8",
+            authDomain: "coinusdt-6edb3.firebaseapp.com",
+            projectId: "coinusdt-6edb3",
+            storageBucket: "coinusdt-6edb3.firebasestorage.app",
+            messagingSenderId: "94635762761",
+            appId: "1:94635762761:web:99e6123ade832916c7cb98",
+            measurementId: "G-R7EHDDDF4K"
         };
 
+        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
 
+        // Google Auth Provider
         const provider = new firebase.auth.GoogleAuthProvider();
         provider.setCustomParameters({ prompt: 'select_account' });
 
+        // Configuration
         const CONFIG = {
             COINS_PER_AD: 10,
             COINS_TO_DOLLAR: 10000,
@@ -1038,7 +986,7 @@
             ]
         };
 
-        // State – added referredBy
+        // State
         let state = {
             isLoggedIn: false,
             user: {
@@ -1049,7 +997,7 @@
                 referralCode: '',
                 referrals: 0,
                 usdtLocked: 0,
-                referredBy: null          // NEW: stores uid of referrer if any
+                referredBy: null
             },
             coins: 0,
             totalCoinsEarned: 0,
@@ -1060,24 +1008,51 @@
             unsubscribeUser: null
         };
 
-        // Helper functions
+        // Utility Functions
         function coinsToDollars(coins) {
             return (coins / CONFIG.COINS_TO_DOLLAR).toFixed(3);
         }
+
         function formatCoins(coins) {
             return coins.toLocaleString();
         }
+
         function showError(message) {
             const errorBox = document.getElementById('auth-error');
-            document.getElementById('error-text').textContent = message;
+            const errorText = document.getElementById('error-text');
+            errorText.textContent = message;
             errorBox.classList.add('show');
-            setTimeout(() => errorBox.classList.remove('show'), 5000);
+            setTimeout(() => {
+                errorBox.classList.remove('show');
+            }, 5000);
         }
+
         function generateReferralCode(uid) {
             return 'CT' + uid.substring(0, 8).toUpperCase();
         }
 
-        // ========== AUTH & USER HANDLING (modified to include referredBy) ==========
+        // ========== AUTH ==========
+        function signInWithGoogle() {
+            auth.signInWithPopup(provider)
+                .then(async (result) => {
+                    const user = result.user;
+                    await handleUserLogin(user);
+                })
+                .catch((error) => {
+                    showError('Google Sign-In failed: ' + error.message);
+                });
+        }
+
+        function demoLogin() {
+            const demoUser = {
+                uid: 'demo123456',
+                displayName: "Demo User",
+                email: "demo@cointap.com",
+                photoURL: "https://ui-avatars.com/api/?name=Demo+User&background=f59e0b&color=fff"
+            };
+            handleUserLogin(demoUser, true);
+        }
+
         async function handleUserLogin(firebaseUser, isDemo = false) {
             const uid = firebaseUser.uid;
             const userRef = db.collection('users').doc(uid);
@@ -1088,21 +1063,19 @@
             const refCode = urlParams.get('ref');
 
             if (!doc.exists) {
-                // New user: create document with referredBy = null initially
+                // New user
                 let referredBy = null;
                 let bonusCoins = 0;
                 let referrerId = null;
 
-                // If referral code exists, try to find referrer
                 if (refCode) {
                     const referrerSnapshot = await db.collection('users').where('referralCode', '==', refCode).get();
                     if (!referrerSnapshot.empty) {
                         const referrerDoc = referrerSnapshot.docs[0];
                         referrerId = referrerDoc.id;
-                        // Don't allow referring self (shouldn't happen for new user)
                         if (referrerId !== uid) {
                             referredBy = referrerId;
-                            bonusCoins = 10; // welcome bonus for being referred
+                            bonusCoins = 10;
                         }
                     }
                 }
@@ -1115,15 +1088,14 @@
                     referralCode: generateReferralCode(uid),
                     referrals: 0,
                     usdtLocked: 0,
-                    coins: bonusCoins,               // start with bonus if referred
+                    coins: bonusCoins,
                     totalCoinsEarned: bonusCoins,
                     adsWatchedToday: 0,
-                    referredBy: referredBy,           // store referrer's uid or null
+                    referredBy: referredBy,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
                 await userRef.set(newUser);
 
-                // If referred, update referrer's stats (USDT + referrals)
                 if (referredBy) {
                     await db.collection('users').doc(referredBy).update({
                         referrals: firebase.firestore.FieldValue.increment(1),
@@ -1132,13 +1104,12 @@
                     showToast(`You were referred! +10 bonus coins 🎉`);
                 }
 
-                // Set local state
                 state.user = { ...newUser, uid, referredBy };
                 state.coins = bonusCoins;
                 state.totalCoinsEarned = bonusCoins;
                 state.adsWatchedToday = 0;
             } else {
-                // Existing user – load data including referredBy
+                // Existing user
                 const userData = doc.data();
                 state.user = {
                     uid: uid,
@@ -1148,7 +1119,7 @@
                     referralCode: userData.referralCode,
                     referrals: userData.referrals || 0,
                     usdtLocked: userData.usdtLocked || 0,
-                    referredBy: userData.referredBy || null   // load referredBy
+                    referredBy: userData.referredBy || null
                 };
                 state.coins = userData.coins || 0;
                 state.totalCoinsEarned = userData.totalCoinsEarned || 0;
@@ -1159,7 +1130,7 @@
             showToast(`Welcome, ${state.user.name}! 🎉`);
             showDashboard();
 
-            // Real‑time listener
+            // Real-time listener
             if (state.unsubscribeUser) state.unsubscribeUser();
             state.unsubscribeUser = userRef.onSnapshot((doc) => {
                 if (doc.exists) {
@@ -1169,26 +1140,10 @@
                     state.adsWatchedToday = data.adsWatchedToday || 0;
                     state.user.referrals = data.referrals || 0;
                     state.user.usdtLocked = data.usdtLocked || 0;
-                    state.user.referredBy = data.referredBy || null;   // keep in sync
+                    state.user.referredBy = data.referredBy || null;
                     updateUI();
                 }
             });
-        }
-
-        function signInWithGoogle() {
-            auth.signInWithPopup(provider)
-                .then(result => handleUserLogin(result.user))
-                .catch(error => showError('Google Sign-In failed: ' + error.message));
-        }
-
-        function demoLogin() {
-            const demoUser = {
-                uid: 'demo123456',
-                displayName: "Demo User",
-                email: "demo@cointap.com",
-                photoURL: "https://ui-avatars.com/api/?name=Demo+User&background=f59e0b&color=fff"
-            };
-            handleUserLogin(demoUser, true);
         }
 
         function showDashboard() {
@@ -1218,76 +1173,7 @@
             document.getElementById('dot-1').style.background = state.currentLinkIndex === 1 ? '#f59e0b' : '#cbd5e1';
         }
 
-        // ========== REFERRAL CODE APPLICATION (NEW) ==========
-        async function applyReferralCode() {
-            const input = document.getElementById('referral-input');
-            const code = input.value.trim().toUpperCase();
-            const msgDiv = document.getElementById('referral-message');
-
-            if (!code) {
-                msgDiv.innerHTML = '<span style="color:#dc2626;">❌ Please enter a code.</span>';
-                return;
-            }
-
-            // Check if user already has a referrer
-            if (state.user.referredBy) {
-                msgDiv.innerHTML = '<span style="color:#dc2626;">❌ You have already used a referral code.</span>';
-                return;
-            }
-
-            // Cannot use own code
-            if (code === state.user.referralCode) {
-                msgDiv.innerHTML = '<span style="color:#dc2626;">❌ You cannot use your own referral code.</span>';
-                return;
-            }
-
-            try {
-                // Find user with this referral code
-                const snapshot = await db.collection('users').where('referralCode', '==', code).get();
-                if (snapshot.empty) {
-                    msgDiv.innerHTML = '<span style="color:#dc2626;">❌ Invalid referral code.</span>';
-                    return;
-                }
-
-                const referrerDoc = snapshot.docs[0];
-                const referrerId = referrerDoc.id;
-
-                if (referrerId === state.user.uid) {
-                    msgDiv.innerHTML = '<span style="color:#dc2626;">❌ You cannot use your own referral code.</span>';
-                    return;
-                }
-
-                // Use batch to atomically update both users
-                const batch = db.batch();
-                const currentUserRef = db.collection('users').doc(state.user.uid);
-                const referrerRef = db.collection('users').doc(referrerId);
-
-                // Update current user: set referredBy, add 10 coins bonus
-                batch.update(currentUserRef, {
-                    referredBy: referrerId,
-                    coins: firebase.firestore.FieldValue.increment(10),
-                    totalCoinsEarned: firebase.firestore.FieldValue.increment(10)
-                });
-
-                // Update referrer: +1 referral, +1 USDT locked
-                batch.update(referrerRef, {
-                    referrals: firebase.firestore.FieldValue.increment(1),
-                    usdtLocked: firebase.firestore.FieldValue.increment(1)
-                });
-
-                await batch.commit();
-
-                msgDiv.innerHTML = '<span style="color:#059669;">✅ Referral applied! You received 10 coins 🪙</span>';
-                input.value = '';
-                // UI updates via snapshot listener
-
-            } catch (error) {
-                console.error(error);
-                msgDiv.innerHTML = '<span style="color:#dc2626;">❌ Error applying code. Try again.</span>';
-            }
-        }
-
-        // ========== EXISTING TASK FUNCTIONS (unchanged) ==========
+        // ========== TASK FUNCTIONS ==========
         async function startTask() {
             if (state.timerActive) return;
             state.timerActive = true;
@@ -1340,7 +1226,70 @@
             updateSmartlink();
         }
 
-        // ========== UI UPDATE (modified to show/hide referral input) ==========
+        // ========== REFERRAL CODE APPLICATION ==========
+        async function applyReferralCode() {
+            const input = document.getElementById('referral-input');
+            const code = input.value.trim().toUpperCase();
+            const msgDiv = document.getElementById('referral-message');
+
+            if (!code) {
+                msgDiv.innerHTML = '<span style="color:#dc2626;">❌ Please enter a code.</span>';
+                return;
+            }
+
+            if (state.user.referredBy) {
+                msgDiv.innerHTML = '<span style="color:#dc2626;">❌ You have already used a referral code.</span>';
+                return;
+            }
+
+            if (code === state.user.referralCode) {
+                msgDiv.innerHTML = '<span style="color:#dc2626;">❌ You cannot use your own referral code.</span>';
+                return;
+            }
+
+            try {
+                const snapshot = await db.collection('users').where('referralCode', '==', code).get();
+                if (snapshot.empty) {
+                    msgDiv.innerHTML = '<span style="color:#dc2626;">❌ Invalid referral code.</span>';
+                    return;
+                }
+
+                const referrerDoc = snapshot.docs[0];
+                const referrerId = referrerDoc.id;
+
+                if (referrerId === state.user.uid) {
+                    msgDiv.innerHTML = '<span style="color:#dc2626;">❌ You cannot use your own referral code.</span>';
+                    return;
+                }
+
+                const batch = db.batch();
+                const currentUserRef = db.collection('users').doc(state.user.uid);
+                const referrerRef = db.collection('users').doc(referrerId);
+
+                batch.update(currentUserRef, {
+                    referredBy: referrerId,
+                    coins: firebase.firestore.FieldValue.increment(10),
+                    totalCoinsEarned: firebase.firestore.FieldValue.increment(10)
+                });
+
+                batch.update(referrerRef, {
+                    referrals: firebase.firestore.FieldValue.increment(1),
+                    usdtLocked: firebase.firestore.FieldValue.increment(1)
+                });
+
+                await batch.commit();
+
+                msgDiv.innerHTML = '<span style="color:#059669;">✅ Referral applied! You received 10 coins 🪙</span>';
+                input.value = '';
+                // UI updates via snapshot listener
+
+            } catch (error) {
+                console.error(error);
+                msgDiv.innerHTML = '<span style="color:#dc2626;">❌ Error applying code. Try again.</span>';
+            }
+        }
+
+        // ========== UI UPDATE ==========
         function updateUI() {
             document.getElementById('coin-balance').textContent = formatCoins(state.coins);
             document.getElementById('nav-coins').textContent = formatCoins(state.coins);
@@ -1384,7 +1333,7 @@
                 status.style.color = '#64748b';
             }
 
-            // Show/hide referral input section based on whether user already has a referrer
+            // Show/hide referral input based on whether user already has a referrer
             const refInputSection = document.getElementById('referral-input-section');
             if (state.user.referredBy) {
                 refInputSection.style.display = 'none';
