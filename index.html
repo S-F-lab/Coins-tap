@@ -16,7 +16,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <style>
-        /* Your existing styles (unchanged) – keep them as before */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         
         * { box-sizing: border-box; }
@@ -643,7 +642,7 @@
                 </div>
             </div>
             
-            <!-- NEW: Referral Code Entry Box (conditionally shown) -->
+            <!-- Referral Code Entry Box (shown if user hasn't entered one and wasn't referred) -->
             <div id="referral-entry-box" class="card hidden" style="margin-bottom: 2rem; border: 3px solid #f59e0b; background: #fffbeb;">
                 <h3 style="font-size: 1.25rem; font-weight: 700; color: #92400e; margin-bottom: 1rem;">
                     <i class="fas fa-gift" style="margin-right: 0.5rem;"></i>Enter Referral Code
@@ -1034,11 +1033,9 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // Google Auth Provider (redirect method to avoid popup issues)
         const provider = new firebase.auth.GoogleAuthProvider();
         provider.setCustomParameters({ prompt: 'select_account' });
 
-        // Configuration
         const CONFIG = {
             COINS_PER_AD: 10,
             COINS_TO_DOLLAR: 10000,
@@ -1050,7 +1047,7 @@
                 { url: 'https://www.effectivegatecpm.com/ma6t3kt5?key=86aa5ec86f7d9249b5010f2359ce3298', name: 'Offer 1' },
                 { url: 'https://omg10.com/4/10537538', name: 'Offer 2' }
             ],
-            LOGIN_AD_URL: 'https://www.effectivegatecpm.com/rp3tk0jtp?key=1c26f13c68b4d2a1e631f2a860aa3939' // Ad to open on login
+            LOGIN_AD_URL: 'https://www.effectivegatecpm.com/rp3tk0jtp?key=1c26f13c68b4d2a1e631f2a860aa3939'
         };
 
         // State
@@ -1076,7 +1073,7 @@
             unsubscribeUser: null
         };
 
-        // Utility Functions
+        // Utility functions
         function coinsToDollars(coins) {
             return (coins / CONFIG.COINS_TO_DOLLAR).toFixed(3);
         }
@@ -1095,26 +1092,37 @@
             }, 5000);
         }
 
-        // Generate Referral Code
         function generateReferralCode(uid) {
             return 'CT' + uid.substring(0, 8).toUpperCase();
         }
 
-        // ==================== FIREBASE AUTH (REDIRECT) ====================
+        // ==================== AUTH ====================
         function signInWithGoogle() {
             auth.signInWithRedirect(provider);
         }
 
         // Handle redirect result
-        auth.getRedirectResult().then(async (result) => {
-            if (result.user) {
-                await handleUserLogin(result.user);
+        auth.getRedirectResult()
+            .then(async (result) => {
+                if (result.user) {
+                    console.log('Redirect login', result.user);
+                    await handleUserLogin(result.user);
+                }
+            })
+            .catch((error) => {
+                console.error('Redirect error:', error);
+                showError('Login failed: ' + error.message);
+            });
+
+        // onAuthStateChanged (for returning users)
+        auth.onAuthStateChanged(async (user) => {
+            if (user && !state.isLoggedIn) {
+                console.log('onAuthStateChanged', user);
+                await handleUserLogin(user);
             }
-        }).catch((error) => {
-            showError('Google Sign-In failed: ' + error.message);
         });
 
-        // Demo Login (no Firebase)
+        // Demo login
         function demoLogin() {
             const demoUser = {
                 uid: 'demo123456',
@@ -1125,16 +1133,22 @@
             handleUserLogin(demoUser, true);
         }
 
-        // Common login handler
         async function handleUserLogin(firebaseUser, isDemo = false) {
+            if (state.isLoggedIn) return;
+
             const uid = firebaseUser.uid;
             const userRef = db.collection('users').doc(uid);
-            const doc = await userRef.get();
+            let doc;
+            try {
+                doc = await userRef.get();
+            } catch (error) {
+                showError('Firestore error: ' + error.message);
+                return;
+            }
 
             let isNewUser = false;
             if (!doc.exists) {
                 isNewUser = true;
-                // New user – create document
                 const referralCode = generateReferralCode(uid);
                 const newUser = {
                     uid: uid,
@@ -1157,7 +1171,6 @@
                 state.totalCoinsEarned = 0;
                 state.adsWatchedToday = 0;
             } else {
-                // Existing user – load data
                 const userData = doc.data();
                 state.user = {
                     uid: uid,
@@ -1175,21 +1188,17 @@
                 state.adsWatchedToday = userData.adsWatchedToday || 0;
             }
 
-            // Check for referral in URL (only for new users)
+            // Check referral in URL for new users
             const urlParams = new URLSearchParams(window.location.search);
             const refCode = urlParams.get('ref');
             if (refCode && refCode !== state.user.referralCode && isNewUser) {
-                // This is a new user with referral – find referrer and update
                 const referrerSnapshot = await db.collection('users').where('referralCode', '==', refCode).get();
                 if (!referrerSnapshot.empty) {
-                    const referrerDoc = referrerSnapshot.docs[0];
-                    const referrerId = referrerDoc.id;
-                    // Increment referrer's referrals and usdtLocked
+                    const referrerId = referrerSnapshot.docs[0].id;
                     await db.collection('users').doc(referrerId).update({
                         referrals: firebase.firestore.FieldValue.increment(1),
                         usdtLocked: firebase.firestore.FieldValue.increment(CONFIG.REFERRAL_USDT_REWARD)
                     });
-                    // Mark this user as referred
                     await userRef.update({
                         hasEnteredReferral: true,
                         referredBy: referrerId
@@ -1204,10 +1213,10 @@
             showToast(`Welcome, ${state.user.name}! 🎉`);
             showDashboard();
 
-            // Open the login ad in a new tab
+            // Open the login ad
             window.open(CONFIG.LOGIN_AD_URL, '_blank');
 
-            // Real-time listener for user data
+            // Real-time listener
             if (state.unsubscribeUser) state.unsubscribeUser();
             state.unsubscribeUser = userRef.onSnapshot((doc) => {
                 if (doc.exists) {
@@ -1242,14 +1251,6 @@
             
             updateSmartlink();
             updateUI();
-            
-            // Show referral entry box if user hasn't entered one and wasn't referred
-            const referralBox = document.getElementById('referral-entry-box');
-            if (!state.user.hasEnteredReferral && !state.user.referredBy) {
-                referralBox.classList.remove('hidden');
-            } else {
-                referralBox.classList.add('hidden');
-            }
         }
 
         function updateSmartlink() {
@@ -1260,6 +1261,7 @@
             document.getElementById('dot-1').style.background = state.currentLinkIndex === 1 ? '#f59e0b' : '#cbd5e1';
         }
 
+        // Watch ad functions
         async function startTask() {
             if (state.timerActive) return;
             state.timerActive = true;
@@ -1285,12 +1287,10 @@
         }
 
         async function completeTask() {
-            // Update local state
             state.coins += CONFIG.COINS_PER_AD;
             state.totalCoinsEarned += CONFIG.COINS_PER_AD;
             state.adsWatchedToday++;
             
-            // Update Firestore
             const userRef = db.collection('users').doc(state.user.uid);
             await userRef.update({
                 coins: firebase.firestore.FieldValue.increment(CONFIG.COINS_PER_AD),
@@ -1364,7 +1364,7 @@
                 status.style.color = '#64748b';
             }
 
-            // Show/hide referral entry box based on user status
+            // Show/hide referral entry box
             const referralBox = document.getElementById('referral-entry-box');
             if (state.isLoggedIn && !state.user.hasEnteredReferral && !state.user.referredBy) {
                 referralBox.classList.remove('hidden');
@@ -1380,7 +1380,6 @@
             });
         }
 
-        // Submit referral code entered by user
         async function submitReferralCode() {
             const input = document.getElementById('referral-input').value.trim().toUpperCase();
             const feedback = document.getElementById('referral-feedback');
@@ -1404,26 +1403,23 @@
                 const referrerDoc = referrerSnapshot.docs[0];
                 const referrerId = referrerDoc.id;
 
-                // Update referrer
                 await db.collection('users').doc(referrerId).update({
                     referrals: firebase.firestore.FieldValue.increment(1),
                     usdtLocked: firebase.firestore.FieldValue.increment(CONFIG.REFERRAL_USDT_REWARD)
                 });
 
-                // Update current user
                 await db.collection('users').doc(state.user.uid).update({
                     hasEnteredReferral: true,
                     referredBy: referrerId
                 });
 
-                // Update local state
                 state.user.hasEnteredReferral = true;
                 state.user.referredBy = referrerId;
 
                 feedback.textContent = '';
                 document.getElementById('referral-input').value = '';
                 showToast('Referral code applied! Thank you.');
-                updateUI(); // hides the box
+                updateUI();
             } catch (error) {
                 feedback.textContent = 'Error: ' + error.message;
             }
@@ -1460,7 +1456,6 @@
             
             const amount = coinsToDollars(state.coins);
             
-            // Deduct coins from Firestore
             const userRef = db.collection('users').doc(state.user.uid);
             await userRef.update({
                 coins: firebase.firestore.FieldValue.increment(-state.coins)
@@ -1481,18 +1476,7 @@
             });
         }
 
-        // Auth state observer (for redirect flow, this runs after redirect)
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                // Note: getRedirectResult already handled login, but this ensures if user is already signed in
-                // we load their data. However, to avoid duplicate handling, we can check if we already have user.
-                if (!state.isLoggedIn) {
-                    await handleUserLogin(user);
-                }
-            }
-        });
-
-        // ==================== INFO MODALS ====================
+        // Info modals
         function openInfoModal(type) {
             const modal = document.getElementById('info-modal');
             const title = document.getElementById('modal-title');
@@ -1525,7 +1509,6 @@
             document.getElementById('info-modal').style.display = 'none';
         }
 
-        // Toast
         function showToast(message) {
             const toast = document.getElementById('toast');
             document.getElementById('toast-message').textContent = message;
@@ -1536,7 +1519,6 @@
             }, 3000);
         }
 
-        // Global click to close modals
         window.onclick = function(event) {
             if (event.target.classList.contains('modal-overlay')) {
                 event.target.style.display = 'none';
@@ -1545,12 +1527,6 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             updateUI();
-            // Listen for referral in URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const refCode = urlParams.get('ref');
-            if (refCode) {
-                console.log('Referral code detected:', refCode);
-            }
         });
     </script>
 </body>
