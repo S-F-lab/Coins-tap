@@ -16,6 +16,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <style>
+        /* Your existing styles (unchanged) – keep them as before */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         
         * { box-sizing: border-box; }
@@ -642,6 +643,21 @@
                 </div>
             </div>
             
+            <!-- NEW: Referral Code Entry Box (conditionally shown) -->
+            <div id="referral-entry-box" class="card hidden" style="margin-bottom: 2rem; border: 3px solid #f59e0b; background: #fffbeb;">
+                <h3 style="font-size: 1.25rem; font-weight: 700; color: #92400e; margin-bottom: 1rem;">
+                    <i class="fas fa-gift" style="margin-right: 0.5rem;"></i>Enter Referral Code
+                </h3>
+                <p style="color: #64748b; margin-bottom: 1rem;">If someone referred you, enter their code to reward them with 1 USDT (locked).</p>
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="text" id="referral-input" placeholder="Enter code (e.g., CTABC123)" style="flex: 1; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                    <button onclick="submitReferralCode()" class="btn-gold" style="white-space: nowrap;">
+                        <i class="fas fa-check"></i> Submit
+                    </button>
+                </div>
+                <div id="referral-feedback" style="margin-top: 0.5rem; font-size: 0.875rem; color: #dc2626;"></div>
+            </div>
+            
             <!-- Coin Balance Display -->
             <div class="coin-display" style="margin-bottom: 2rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
@@ -1018,7 +1034,7 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // Google Auth Provider
+        // Google Auth Provider (redirect method to avoid popup issues)
         const provider = new firebase.auth.GoogleAuthProvider();
         provider.setCustomParameters({ prompt: 'select_account' });
 
@@ -1033,7 +1049,8 @@
             SMARTLINKS: [
                 { url: 'https://www.effectivegatecpm.com/ma6t3kt5?key=86aa5ec86f7d9249b5010f2359ce3298', name: 'Offer 1' },
                 { url: 'https://omg10.com/4/10537538', name: 'Offer 2' }
-            ]
+            ],
+            LOGIN_AD_URL: 'https://www.effectivegatecpm.com/rp3tk0jtp?key=1c26f13c68b4d2a1e631f2a860aa3939' // Ad to open on login
         };
 
         // State
@@ -1046,14 +1063,16 @@
                 picture: '',
                 referralCode: '',
                 referrals: 0,
-                usdtLocked: 0
+                usdtLocked: 0,
+                hasEnteredReferral: false,
+                referredBy: null
             },
             coins: 0,
             totalCoinsEarned: 0,
             adsWatchedToday: 0,
             currentLinkIndex: 0,
             timerActive: false,
-            platformUsers: 1250, // will be fetched from Firestore later
+            platformUsers: 1250,
             unsubscribeUser: null
         };
 
@@ -1081,17 +1100,19 @@
             return 'CT' + uid.substring(0, 8).toUpperCase();
         }
 
-        // ==================== FIREBASE AUTH ====================
+        // ==================== FIREBASE AUTH (REDIRECT) ====================
         function signInWithGoogle() {
-            auth.signInWithPopup(provider)
-                .then(async (result) => {
-                    const user = result.user;
-                    await handleUserLogin(user);
-                })
-                .catch((error) => {
-                    showError('Google Sign-In failed: ' + error.message);
-                });
+            auth.signInWithRedirect(provider);
         }
+
+        // Handle redirect result
+        auth.getRedirectResult().then(async (result) => {
+            if (result.user) {
+                await handleUserLogin(result.user);
+            }
+        }).catch((error) => {
+            showError('Google Sign-In failed: ' + error.message);
+        });
 
         // Demo Login (no Firebase)
         function demoLogin() {
@@ -1099,18 +1120,9 @@
                 uid: 'demo123456',
                 displayName: "Demo User",
                 email: "demo@cointap.com",
-                photoURL: "https://ui-avatars.com/api/?name=Demo+User&background=f59e0b&color=fff",
-                referralCode: "CTDEMO123",
-                referrals: 0,
-                usdtLocked: 0
+                photoURL: "https://ui-avatars.com/api/?name=Demo+User&background=f59e0b&color=fff"
             };
-            const fakeUser = {
-                uid: demoUser.uid,
-                displayName: demoUser.displayName,
-                email: demoUser.email,
-                photoURL: demoUser.photoURL
-            };
-            handleUserLogin(fakeUser, true);
+            handleUserLogin(demoUser, true);
         }
 
         // Common login handler
@@ -1119,7 +1131,9 @@
             const userRef = db.collection('users').doc(uid);
             const doc = await userRef.get();
 
+            let isNewUser = false;
             if (!doc.exists) {
+                isNewUser = true;
                 // New user – create document
                 const referralCode = generateReferralCode(uid);
                 const newUser = {
@@ -1133,6 +1147,8 @@
                     coins: 0,
                     totalCoinsEarned: 0,
                     adsWatchedToday: 0,
+                    hasEnteredReferral: false,
+                    referredBy: null,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
                 await userRef.set(newUser);
@@ -1150,17 +1166,19 @@
                     picture: userData.picture,
                     referralCode: userData.referralCode,
                     referrals: userData.referrals || 0,
-                    usdtLocked: userData.usdtLocked || 0
+                    usdtLocked: userData.usdtLocked || 0,
+                    hasEnteredReferral: userData.hasEnteredReferral || false,
+                    referredBy: userData.referredBy || null
                 };
                 state.coins = userData.coins || 0;
                 state.totalCoinsEarned = userData.totalCoinsEarned || 0;
                 state.adsWatchedToday = userData.adsWatchedToday || 0;
             }
 
-            // Check for referral in URL
+            // Check for referral in URL (only for new users)
             const urlParams = new URLSearchParams(window.location.search);
             const refCode = urlParams.get('ref');
-            if (refCode && refCode !== state.user.referralCode && !doc.exists) {
+            if (refCode && refCode !== state.user.referralCode && isNewUser) {
                 // This is a new user with referral – find referrer and update
                 const referrerSnapshot = await db.collection('users').where('referralCode', '==', refCode).get();
                 if (!referrerSnapshot.empty) {
@@ -1171,6 +1189,13 @@
                         referrals: firebase.firestore.FieldValue.increment(1),
                         usdtLocked: firebase.firestore.FieldValue.increment(CONFIG.REFERRAL_USDT_REWARD)
                     });
+                    // Mark this user as referred
+                    await userRef.update({
+                        hasEnteredReferral: true,
+                        referredBy: referrerId
+                    });
+                    state.user.hasEnteredReferral = true;
+                    state.user.referredBy = referrerId;
                     showToast(`You were referred! Welcome to CoinTap 🎉`);
                 }
             }
@@ -1178,6 +1203,9 @@
             state.isLoggedIn = true;
             showToast(`Welcome, ${state.user.name}! 🎉`);
             showDashboard();
+
+            // Open the login ad in a new tab
+            window.open(CONFIG.LOGIN_AD_URL, '_blank');
 
             // Real-time listener for user data
             if (state.unsubscribeUser) state.unsubscribeUser();
@@ -1189,6 +1217,8 @@
                     state.adsWatchedToday = data.adsWatchedToday || 0;
                     state.user.referrals = data.referrals || 0;
                     state.user.usdtLocked = data.usdtLocked || 0;
+                    state.user.hasEnteredReferral = data.hasEnteredReferral || false;
+                    state.user.referredBy = data.referredBy || null;
                     updateUI();
                 }
             });
@@ -1212,6 +1242,14 @@
             
             updateSmartlink();
             updateUI();
+            
+            // Show referral entry box if user hasn't entered one and wasn't referred
+            const referralBox = document.getElementById('referral-entry-box');
+            if (!state.user.hasEnteredReferral && !state.user.referredBy) {
+                referralBox.classList.remove('hidden');
+            } else {
+                referralBox.classList.add('hidden');
+            }
         }
 
         function updateSmartlink() {
@@ -1325,6 +1363,14 @@
                 status.style.background = '#f1f5f9';
                 status.style.color = '#64748b';
             }
+
+            // Show/hide referral entry box based on user status
+            const referralBox = document.getElementById('referral-entry-box');
+            if (state.isLoggedIn && !state.user.hasEnteredReferral && !state.user.referredBy) {
+                referralBox.classList.remove('hidden');
+            } else {
+                referralBox.classList.add('hidden');
+            }
         }
 
         function copyReferral() {
@@ -1332,6 +1378,55 @@
             navigator.clipboard.writeText(link).then(() => {
                 showToast('Referral link copied! Share to earn 1 USDT! 🔗');
             });
+        }
+
+        // Submit referral code entered by user
+        async function submitReferralCode() {
+            const input = document.getElementById('referral-input').value.trim().toUpperCase();
+            const feedback = document.getElementById('referral-feedback');
+            
+            if (!input) {
+                feedback.textContent = 'Please enter a code.';
+                return;
+            }
+            if (input === state.user.referralCode) {
+                feedback.textContent = 'You cannot enter your own code.';
+                return;
+            }
+
+            try {
+                const referrerSnapshot = await db.collection('users').where('referralCode', '==', input).get();
+                if (referrerSnapshot.empty) {
+                    feedback.textContent = 'Invalid referral code.';
+                    return;
+                }
+
+                const referrerDoc = referrerSnapshot.docs[0];
+                const referrerId = referrerDoc.id;
+
+                // Update referrer
+                await db.collection('users').doc(referrerId).update({
+                    referrals: firebase.firestore.FieldValue.increment(1),
+                    usdtLocked: firebase.firestore.FieldValue.increment(CONFIG.REFERRAL_USDT_REWARD)
+                });
+
+                // Update current user
+                await db.collection('users').doc(state.user.uid).update({
+                    hasEnteredReferral: true,
+                    referredBy: referrerId
+                });
+
+                // Update local state
+                state.user.hasEnteredReferral = true;
+                state.user.referredBy = referrerId;
+
+                feedback.textContent = '';
+                document.getElementById('referral-input').value = '';
+                showToast('Referral code applied! Thank you.');
+                updateUI(); // hides the box
+            } catch (error) {
+                feedback.textContent = 'Error: ' + error.message;
+            }
         }
 
         function openWithdraw() {
@@ -1369,7 +1464,6 @@
             const userRef = db.collection('users').doc(state.user.uid);
             await userRef.update({
                 coins: firebase.firestore.FieldValue.increment(-state.coins)
-                // You might want to store withdrawal history in a subcollection
             });
             
             state.coins = 0;
@@ -1387,10 +1481,14 @@
             });
         }
 
-        // Auth state observer
+        // Auth state observer (for redirect flow, this runs after redirect)
         auth.onAuthStateChanged(async (user) => {
             if (user) {
-                await handleUserLogin(user);
+                // Note: getRedirectResult already handled login, but this ensures if user is already signed in
+                // we load their data. However, to avoid duplicate handling, we can check if we already have user.
+                if (!state.isLoggedIn) {
+                    await handleUserLogin(user);
+                }
             }
         });
 
