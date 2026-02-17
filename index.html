@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoinTap - Watch Ads & Earn Coins</title>
+    
+    <meta name="description" content="CoinTap - Watch ads earn coins, refer friends earn USDT. 10 coins per ad, 10000 coins = $1.00">
+    
+    <!-- Firebase SDK (v9 compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * { box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            padding: 0.875rem 1.75rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
+        }
+        
+        .btn-gold {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            padding: 0.875rem 1.75rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.2);
+        }
+        
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.3);
+        }
+        
+        .google-btn {
+            background: white;
+            color: #444;
+            border: 2px solid #e2e8f0;
+            padding: 14px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .google-btn:hover {
+            border-color: #4285f4;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            transform: translateY(-1px);
+        }
+        
+        .card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+        
+        nav {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .main-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+        
+        .hero {
+            text-align: center;
+            padding: 2rem 0;
+        }
+        
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        
+        .coin-display {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 3px solid #f59e0b;
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.2);
+        }
+        
+        .coin-display::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%);
+            animation: shimmer 3s infinite linear;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .coin-amount {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #92400e;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .stat-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        
+        .stat-card:hover {
+            border-color: #f59e0b;
+            transform: translateY(-2px);
+        }
+        
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            color: #d97706;
+            font-size: 1.75rem;
+            border: 2px solid #f59e0b;
+        }
+        
+        .referral-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 16px;
+            margin: 2rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .usdt-lock-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 3px solid #f59e0b;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            color: #92400e;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .converter-box {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border: 2px solid #059669;
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+        
+        .conversion-rate {
+            display: inline-flex;
+            align-items: center;
+            gap: 1.5rem;
+            background: white;
+            padding: 1.5rem 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            margin: 1rem 0;
+            border: 2px solid #f59e0b;
+        }
+        
+        footer {
+            background: #0f172a;
+            color: #cbd5e1;
+            padding: 2rem 0;
+            margin-top: 4rem;
+            text-align: center;
+        }
+        
+        .hidden { display: none !important; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in { animation: fadeIn 0.3s ease-out; }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .float-animation { animation: float 3s ease-in-out infinite; }
+        
+        @keyframes coinPop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        .coin-pop { animation: coinPop 0.3s ease-out; }
+        
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .timer-display {
+            font-size: 4rem;
+            font-weight: 800;
+            color: #2563eb;
+            font-family: monospace;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #059669, #10b981);
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+        
+        .coin-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #92400e;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 1rem;
+            border: 2px solid #f59e0b;
+        }
+        
+        .usdt-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #1e40af;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 1rem;
+            border: 2px solid #2563eb;
+        }
+        
+        .smartlink-btn {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            padding: 1.25rem 2rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.25rem;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            justify-content: center;
+            width: 100%;
+            box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.3);
+        }
+        
+        .smartlink-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 25px -5px rgba(245, 158, 11, 0.4);
+        }
+        
+        .withdraw-option {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .withdraw-option:hover {
+            border-color: #f59e0b;
+            background: #fffbeb;
+            transform: translateY(-2px);
+        }
+        
+        .withdraw-option.selected {
+            border-color: #059669;
+            background: #d1fae5;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #0f172a;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 200;
+            border-left: 4px solid #059669;
+        }
+        
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        .ad-counter {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .pulse-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+        
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 0.8; }
+            100% { transform: scale(1.3); opacity: 0; }
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 1.5rem 0;
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e2e8f0;
+            margin: 0 1rem;
+        }
+        
+        .locked-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(0,0,0,0.2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        
+        .error-box {
+            background: #fef2f2;
+            border: 2px solid #dc2626;
+            border-radius: 12px;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: #991b1b;
+            display: none;
+        }
+        
+        .error-box.show {
+            display: block;
+        }
+        
+        footer a {
+            color: #94a3b8;
+            text-decoration: none;
+            margin: 0 1rem;
+            font-size: 0.875rem;
+            transition: color 0.2s;
+            cursor: pointer;
+        }
+        footer a:hover {
+            color: #f59e0b;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-content">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.3);">
+                    <i class="fas fa-coins"></i>
+                </div>
+                <span style="font-size: 1.5rem; font-weight: 800; color: #0f172a;">CoinTap</span>
+            </div>
+            
+            <div id="user-nav" class="hidden" style="display: flex; align-items: center; gap: 1rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); padding: 0.5rem 1rem; border-radius: 20px; border: 2px solid #f59e0b;">
+                    <i class="fas fa-coins" style="color: #d97706;"></i>
+                    <span id="nav-coins" style="font-weight: 800; color: #92400e;">0</span>
+                    <span style="font-size: 0.75rem; color: #92400e; font-weight: 600;">coins</span>
+                </div>
+                <img id="user-avatar" src="" style="width: 36px; height: 36px; border-radius: 50%; border: 2px solid #f59e0b; display: none;">
+                <button onclick="handleSignOut()" style="background: none; border: none; color: #64748b; cursor: pointer; font-size: 1.25rem;">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-container">
+        
+        <!-- Auth Section -->
+        <div id="auth-section" class="animate-fade-in">
+            <div class="hero">
+                <div style="display: inline-block; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); padding: 0.5rem 1rem; border-radius: 20px; margin-bottom: 1rem; border: 2px solid #f59e0b;">
+                    <span style="color: #92400e; font-weight: 700; font-size: 0.875rem;">
+                        <i class="fas fa-coins" style="margin-right: 0.5rem;"></i>10 Coins Per Ad!
+                    </span>
+                </div>
+                <h1>Watch Ads, Earn <span style="color: #f59e0b;">Coins</span><br>Refer Friends, Earn <span style="color: #2563eb;">USDT</span></h1>
+                <p style="color: #64748b; max-width: 600px; margin: 0 auto 2rem; font-size: 1.125rem;">
+                    <strong>Dual Earning System:</strong> Earn 10 coins per ad (10,000 coins = $1.00). 
+                    Plus earn <strong>1 USDT per referral</strong> (locked until 100M users)!
+                </p>
+                
+                <!-- Error Message Box -->
+                <div id="auth-error" class="error-box">
+                    <i class="fas fa-exclamation-triangle" style="margin-right: 0.5rem;"></i>
+                    <span id="error-text"></span>
+                </div>
+                
+                <div style="max-width: 400px; margin: 0 auto;">
+                    <!-- Google Sign In Button -->
+                    <button onclick="signInWithGoogle()" class="google-btn" style="margin-bottom: 1rem;">
+                        <svg width="20" height="20" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        </svg>
+                        Sign in with Google
+                    </button>
+                    
+                    <div class="divider">or</div>
+                    
+                    <button onclick="demoLogin()" class="btn-primary" style="width: 100%; justify-content: center; padding: 1rem; font-size: 1.125rem;">
+                        <i class="fas fa-user-circle"></i> Continue as Guest (Demo)
+                    </button>
+                    
+                    <div style="background: #dbeafe; border: 1px solid #3b82f6; border-radius: 8px; padding: 1rem; margin-top: 1.5rem;">
+                        <p style="font-size: 0.875rem; color: #1e40af; margin: 0;">
+                            <i class="fas fa-info-circle" style="margin-right: 0.5rem;"></i>
+                            <strong>Google Login Issue?</strong> Use "Continue as Guest" for demo access. 
+                        </p>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: center; gap: 2rem; margin-top: 1.5rem; font-size: 0.875rem; color: #64748b;">
+                        <span><i class="fas fa-check-circle" style="color: #059669; margin-right: 0.25rem;"></i> Free to Join</span>
+                        <span><i class="fas fa-check-circle" style="color: #059669; margin-right: 0.25rem;"></i> Instant Coins</span>
+                        <span><i class="fas fa-check-circle" style="color: #059669; margin-right: 0.25rem;"></i> USDT Referrals</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- How It Works -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-play-circle"></i>
+                    </div>
+                    <div style="font-weight: 700; font-size: 1.125rem; margin-bottom: 0.5rem;">Watch Ads</div>
+                    <p style="font-size: 0.875rem; color: #64748b;">View 15-20 second advertisements</p>
+                    <div style="margin-top: 1rem;">
+                        <span class="coin-badge">+10 Coins</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); color: #2563eb; border-color: #2563eb;">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div style="font-weight: 700; font-size: 1.125rem; margin-bottom: 0.5rem;">Refer Friends</div>
+                    <p style="font-size: 0.875rem; color: #64748b;">Invite friends to join CoinTap</p>
+                    <div style="margin-top: 1rem;">
+                        <span class="usdt-badge">+1 USDT</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <div style="font-weight: 700; font-size: 1.125rem; margin-bottom: 0.5rem;">Convert Coins</div>
+                    <p style="font-size: 0.875rem; color: #64748b;">10,000 coins = $1.00 USD</p>
+                    <div style="margin-top: 1rem;">
+                        <span class="coin-badge">Instant</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); color: #2563eb; border-color: #2563eb;">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <div style="font-weight: 700; font-size: 1.125rem; margin-bottom: 0.5rem;">USDT Locked</div>
+                    <p style="font-size: 0.875rem; color: #64748b;">Unlocks at 100M users</p>
+                    <div style="margin-top: 1rem;">
+                        <span class="usdt-badge">Secure</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboard-section" class="hidden animate-fade-in">
+            
+            <!-- Welcome -->
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div style="position: relative;">
+                        <div class="pulse-ring"></div>
+                        <img id="dash-avatar" src="" style="width: 60px; height: 60px; border-radius: 50%; border: 3px solid #f59e0b; position: relative; z-index: 1; display: none;">
+                    </div>
+                    <div>
+                        <h2 style="font-size: 1.5rem; font-weight: 800; color: #0f172a;">Welcome, <span id="user-name" style="color: #f59e0b;">User</span>! 👋</h2>
+                        <p style="color: #64748b; font-size: 0.875rem;">Ready to earn coins & stack USDT?</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Coin Balance Display -->
+            <div class="coin-display" style="margin-bottom: 2rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <div style="text-align: left; z-index: 1;">
+                        <div style="font-size: 0.875rem; color: #92400e; font-weight: 700; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                            <i class="fas fa-wallet" style="margin-right: 0.5rem;"></i>Coin Balance
+                        </div>
+                        <div style="display: flex; align-items: baseline; gap: 0.5rem;">
+                            <span id="coin-balance" class="coin-amount">0</span>
+                            <span style="font-size: 1.25rem; font-weight: 700; color: #b45309;">coins</span>
+                        </div>
+                    </div>
+                    <div style="text-align: right; z-index: 1; background: rgba(255,255,255,0.6); padding: 1rem 1.5rem; border-radius: 12px; border: 2px solid #f59e0b;">
+                        <div style="font-size: 0.875rem; color: #92400e; font-weight: 600; margin-bottom: 0.25rem;">Equivalent to</div>
+                        <div style="font-size: 2.5rem; font-weight: 800; color: #059669;">
+                            $<span id="dollar-equivalent">0.000</span>
+                        </div>
+                        <div style="font-size: 0.75rem; color: #b45309; margin-top: 0.25rem; font-weight: 600;">10,000 coins = $1.00</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stats Grid -->
+            <div class="stats-grid" style="margin-bottom: 2rem;">
+                <div class="stat-card" style="border-left: 4px solid #f59e0b;">
+                    <div style="font-size: 0.875rem; color: #64748b; font-weight: 600;">Ads Watched Today</div>
+                    <div style="font-size: 2rem; font-weight: 800; color: #d97706; margin-top: 0.5rem;">
+                        <span id="daily-count">0</span>
+                    </div>
+                    <div style="font-size: 0.875rem; color: #059669; margin-top: 0.25rem;">
+                        <i class="fas fa-infinity" style="margin-right: 0.25rem;"></i>Unlimited
+                    </div>
+                </div>
+                
+                <div class="stat-card" style="border-left: 4px solid #f59e0b;">
+                    <div style="font-size: 0.875rem; color: #64748b; font-weight: 600;">Total Coins Earned</div>
+                    <div style="font-size: 2rem; font-weight: 800; color: #d97706; margin-top: 0.5rem;">
+                        <span id="total-coins">0</span>
+                    </div>
+                    <div style="font-size: 0.875rem; color: #64748b; margin-top: 0.25rem;">Lifetime earnings</div>
+                </div>
+                
+                <div class="stat-card" style="border-left: 4px solid #059669;">
+                    <div style="font-size: 0.875rem; color: #64748b; font-weight: 600;">Withdrawal Progress</div>
+                    <div style="font-size: 1.5rem; font-weight: 800; color: #059669; margin-top: 0.5rem;">
+                        <span id="withdraw-progress">0</span>%
+                    </div>
+                    <div class="progress-bar" style="margin-top: 0.75rem;">
+                        <div id="withdraw-bar" class="progress-fill"></div>
+                    </div>
+                    <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.5rem; font-weight: 600;">Min: 20,000 coins ($2.00)</div>
+                </div>
+            </div>
+            
+            <!-- Conversion Calculator -->
+            <div class="converter-box">
+                <h3 style="font-size: 1.25rem; font-weight: 700; color: #065f46; margin-bottom: 1rem;">
+                    <i class="fas fa-calculator" style="margin-right: 0.5rem;"></i>Coin Conversion Calculator
+                </h3>
+                <div class="conversion-rate">
+                    <div style="text-align: center;">
+                        <div style="font-size: 2.5rem; font-weight: 800; color: #d97706;">10,000</div>
+                        <div style="font-size: 0.875rem; color: #92400e; font-weight: 700;">COINS</div>
+                    </div>
+                    <i class="fas fa-exchange-alt" style="font-size: 1.5rem; color: #059669;"></i>
+                    <div style="text-align: center;">
+                        <div style="font-size: 2.5rem; font-weight: 800; color: #059669;">$1.00</div>
+                        <div style="font-size: 0.875rem; color: #065f46; font-weight: 700;">USD</div>
+                    </div>
+                </div>
+                <p style="color: #065f46; font-size: 0.875rem; margin-top: 1rem; font-weight: 500;">
+                    <i class="fas fa-lightbulb" style="margin-right: 0.5rem; color: #f59e0b;"></i>
+                    Watch 1,000 ads (10,000 coins) to earn $1.00!
+                </p>
+            </div>
+            
+            <!-- Main Task Area -->
+            <div class="card" style="text-align: center; padding: 3rem 2rem; border: 3px solid #f59e0b; background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);">
+                
+                <!-- Counter -->
+                <div class="ad-counter">
+                    <div style="font-size: 0.875rem; color: #92400e; font-weight: 700; margin-bottom: 0.5rem; text-transform: uppercase;">
+                        <i class="fas fa-fire" style="color: #dc2626; margin-right: 0.5rem;"></i>Next Reward
+                    </div>
+                    <div style="font-size: 2.5rem; font-weight: 800; color: #d97706;">
+                        <span class="coin-badge" style="font-size: 1.5rem; padding: 0.75rem 1.5rem;">
+                            <i class="fas fa-plus" style="font-size: 0.875rem;"></i> 10 COINS
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Task Area States -->
+                <div id="task-idle">
+                    <div class="float-animation" style="width: 100px; height: 100px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; box-shadow: 0 20px 25px -5px rgba(245, 158, 11, 0.4);">
+                        <i class="fas fa-play" style="font-size: 2.5rem; color: white; margin-left: 6px;"></i>
+                    </div>
+                    <h3 style="font-size: 1.875rem; font-weight: 800; color: #0f172a; margin-bottom: 0.5rem;">Ready to Earn Coins?</h3>
+                    <p style="color: #64748b; margin-bottom: 2rem; max-width: 400px; margin-left: auto; margin-right: auto; font-size: 1.125rem;">
+                        Click below to visit our sponsor and earn <strong>10 coins</strong> instantly!
+                    </p>
+                    
+                    <a id="smartlink-btn" href="#" target="_blank" onclick="startTask()" class="smartlink-btn">
+                        <i class="fas fa-external-link-alt"></i> 
+                        Watch Ad & Earn 10 Coins
+                    </a>
+                    
+                    <div style="margin-top: 1.5rem; display: flex; justify-content: center; gap: 0.5rem;">
+                        <span id="dot-0" style="width: 10px; height: 10px; background: #f59e0b; border-radius: 50%;"></span>
+                        <span id="dot-1" style="width: 10px; height: 10px; background: #cbd5e1; border-radius: 50%;"></span>
+                    </div>
+                </div>
+                
+                <!-- Timer State -->
+                <div id="task-timer" class="hidden">
+                    <div style="width: 120px; height: 120px; background: #dbeafe; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; border: 4px solid #2563eb;">
+                        <div class="timer-display" id="timer-count">20</div>
+                    </div>
+                    <h3 style="font-size: 1.5rem; font-weight: 700; color: #1e40af; margin-bottom: 0.5rem;">Stay on the Page...</h3>
+                    <p style="color: #64748b; margin-bottom: 1rem;">Keep the sponsor site open to claim your coins</p>
+                    <div class="progress-bar" style="max-width: 300px; margin: 0 auto;">
+                        <div id="task-progress" class="progress-fill"></div>
+                    </div>
+                </div>
+                
+                <!-- Success State -->
+                <div id="task-success" class="hidden">
+                    <div class="coin-pop" style="width: 120px; height: 120px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; box-shadow: 0 20px 25px -5px rgba(245, 158, 11, 0.4);">
+                        <i class="fas fa-coins" style="font-size: 3rem; color: white;"></i>
+                    </div>
+                    <h3 style="font-size: 2rem; font-weight: 800; color: #d97706; margin-bottom: 0.5rem;">+10 Coins Earned! 🎉</h3>
+                    <p style="color: #64748b; margin-bottom: 1.5rem; font-size: 1.125rem;">Great job! Coins added to your balance.</p>
+                    <div style="background: #f0fdf4; border: 2px solid #86efac; border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; display: inline-block;">
+                        <span style="color: #065f46; font-weight: 700;">
+                            <i class="fas fa-chart-line" style="margin-right: 0.5rem;"></i>
+                            Total: <span id="success-total">0</span> coins ($<span id="success-dollar">0.00</span>)
+                        </span>
+                    </div>
+                    <br>
+                    <button onclick="resetTask()" class="btn-gold" style="font-size: 1.125rem;">
+                        <i class="fas fa-redo"></i> Watch Another Ad
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Referral Section - USDT Focused -->
+            <div class="referral-box">
+                <div style="text-align: center; margin-bottom: 1.5rem;">
+                    <div style="width: 80px; height: 80px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                        <i class="fas fa-gift" style="font-size: 2.5rem;"></i>
+                    </div>
+                    <h3 style="font-size: 1.875rem; font-weight: 800; margin-bottom: 0.5rem;">Refer & Earn <span style="color: #fde68a;">1 USDT</span>!</h3>
+                    <p style="opacity: 0.95; font-size: 1rem; max-width: 500px; margin: 0 auto;">
+                        Invite friends using your referral code. When they sign up and watch their first ad, 
+                        you earn <strong>1 USDT</strong> (not coins - real USDT!).
+                    </p>
+                </div>
+                
+                <!-- USDT Lock Box -->
+                <div class="usdt-lock-box">
+                    <div style="position: relative; z-index: 1;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                            <div>
+                                <div style="font-size: 0.875rem; color: #92400e; font-weight: 700; margin-bottom: 0.25rem; text-transform: uppercase;">
+                                    Your Referral Code
+                                </div>
+                                <div id="referral-code" style="font-size: 1.5rem; font-weight: 800; font-family: monospace; letter-spacing: 2px; color: #78350f;">LOADING...</div>
+                            </div>
+                            <button onclick="copyReferral()" class="btn-primary" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border: 2px solid #92400e;">
+                                <i class="fas fa-copy"></i> Copy Link
+                            </button>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+                            <div style="text-align: center; background: rgba(255,255,255,0.5); padding: 1.5rem; border-radius: 12px; border: 2px solid #f59e0b;">
+                                <div style="font-size: 0.875rem; color: #92400e; font-weight: 600; margin-bottom: 0.5rem;">Total Referrals</div>
+                                <div id="total-referrals" style="font-size: 2.5rem; font-weight: 800; color: #78350f;">0</div>
+                            </div>
+                            <div style="text-align: center; background: rgba(255,255,255,0.5); padding: 1.5rem; border-radius: 12px; border: 2px solid #2563eb;">
+                                <div style="font-size: 0.875rem; color: #1e40af; font-weight: 600; margin-bottom: 0.5rem;">USDT Earned</div>
+                                <div style="font-size: 2.5rem; font-weight: 800; color: #2563eb;">
+                                    <span id="usdt-earned">0</span> <span style="font-size: 1rem;">USDT</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Lock Status -->
+                        <div style="background: #78350f; border-radius: 12px; padding: 1.5rem; text-align: center; color: white;">
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-bottom: 1rem;">
+                                <i class="fas fa-lock" style="font-size: 1.5rem; color: #fde68a;"></i>
+                                <span style="font-size: 1.125rem; font-weight: 700;">USDT Locked Until Milestone</span>
+                            </div>
+                            <p style="font-size: 0.875rem; margin-bottom: 1rem; opacity: 0.9;">
+                                Your <strong>USDT rewards are locked</strong> until CoinTap reaches <strong>100 Million Users</strong> worldwide. 
+                                Keep referring to increase your locked USDT balance!
+                            </p>
+                            <div style="background: rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem;">
+                                <div style="display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 0.5rem;">
+                                    <span>Platform Progress:</span>
+                                    <span id="platform-users" style="font-weight: 700; color: #fde68a;">1,250 Users</span>
+                                </div>
+                                <div style="width: 100%; height: 10px; background: rgba(255,255,255,0.2); border-radius: 5px; overflow: hidden;">
+                                    <div style="width: 0.00125%; height: 100%; background: #fde68a; border-radius: 5px;"></div>
+                                </div>
+                                <div style="font-size: 0.75rem; margin-top: 0.5rem; opacity: 0.8;">
+                                    Target: 100,000,000 Users (0.001% reached)
+                                </div>
+                            </div>
+                            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.2);">
+                                <span class="locked-badge">
+                                    <i class="fas fa-shield-alt"></i> Secured & Locked
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Withdrawal Section -->
+            <div class="card" style="margin-top: 2rem; border: 2px solid #e2e8f0;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <h3 style="font-size: 1.25rem; font-weight: 700; color: #0f172a;">
+                            <i class="fas fa-wallet" style="color: #059669; margin-right: 0.5rem;"></i>Withdraw Coins
+                        </h3>
+                    </div>
+                    <span id="withdraw-status" style="background: #f1f5f9; color: #64748b; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.875rem; font-weight: 600;">
+                        <i class="fas fa-lock" style="margin-right: 0.25rem;"></i> Locked
+                    </span>
+                </div>
+                
+                <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                        <div>
+                            <div style="font-size: 0.875rem; color: #64748b; margin-bottom: 0.25rem; font-weight: 600;">Available Balance</div>
+                            <div style="font-size: 2.5rem; font-weight: 800; color: #d97706;">
+                                <span id="withdraw-coins">0</span> <span style="font-size: 1rem; color: #92400e;">coins</span>
+                            </div>
+                            <div style="font-size: 1rem; color: #059669; font-weight: 700;">
+                                = $<span id="withdraw-dollars">0.00</span> USD
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 0.875rem; color: #64748b; margin-bottom: 0.25rem; font-weight: 600;">Minimum Required</div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: #059669;">20,000 coins</div>
+                            <div style="font-size: 0.875rem; color: #64748b;">($2.00)</div>
+                        </div>
+                    </div>
+                    
+                    <button id="withdraw-btn" onclick="openWithdraw()" disabled style="width: 100%; margin-top: 1.5rem; background: #cbd5e1; color: #64748b; border: none; padding: 1rem; border-radius: 8px; font-weight: 700; cursor: not-allowed; font-size: 1.125rem;">
+                        <i class="fas fa-lock"></i> Need 20,000 Coins to Withdraw
+                    </button>
+                </div>
+                
+                <!-- Withdrawal Methods -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem;">
+                    <div class="withdraw-option" onclick="selectMethod('jazzcash')">
+                        <i class="fas fa-bolt" style="font-size: 1.5rem; color: #dc2626; margin-bottom: 0.5rem;"></i>
+                        <div style="font-weight: 600; font-size: 0.875rem;">JazzCash</div>
+                    </div>
+                    <div class="withdraw-option" onclick="selectMethod('easypaisa')">
+                        <i class="fas fa-mobile-alt" style="font-size: 1.5rem; color: #16a34a; margin-bottom: 0.5rem;"></i>
+                        <div style="font-weight: 600; font-size: 0.875rem;">Easypaisa</div>
+                    </div>
+                    <div class="withdraw-option" onclick="selectMethod('crypto')">
+                        <i class="fab fa-bitcoin" style="font-size: 1.5rem; color: #f7931a; margin-bottom: 0.5rem;"></i>
+                        <div style="font-weight: 600; font-size: 0.875rem;">Crypto</div>
+                    </div>
+                    <div class="withdraw-option" onclick="selectMethod('bank')">
+                        <i class="fas fa-university" style="font-size: 1.5rem; color: #2563eb; margin-bottom: 0.5rem;"></i>
+                        <div style="font-weight: 600; font-size: 0.875rem;">Bank</div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+    </main>
+
+    <footer>
+        <div style="margin-bottom: 1rem;">
+            <a onclick="openInfoModal('about')">About</a>
+            <a onclick="openInfoModal('privacy')">Privacy</a>
+            <a onclick="openInfoModal('terms')">Terms</a>
+            <a onclick="openInfoModal('contact')">Contact</a>
+        </div>
+        <p style="font-size: 0.875rem; color: #64748b;">
+            &copy; 2024 CoinTap. Earn coins & stack USDT!
+        </p>
+    </footer>
+
+    <!-- Info Modals (About, Privacy, Terms, Contact) -->
+    <div id="info-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 1.5rem; text-align: center;">
+                <h3 id="modal-title" style="font-size: 1.5rem; font-weight: 700;">About</h3>
+            </div>
+            <div style="padding: 2rem;">
+                <div id="modal-body">
+                    <!-- Content will be filled by JavaScript -->
+                </div>
+                <button onclick="closeInfoModal()" class="btn-gold" style="width: 100%; margin-top: 1.5rem;">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Withdrawal Modal -->
+    <div id="withdraw-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div style="background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; padding: 1.5rem; text-align: center;">
+                <h3 style="font-size: 1.5rem; font-weight: 700;"><i class="fas fa-wallet" style="margin-right: 0.5rem;"></i>Withdraw Coins</h3>
+            </div>
+            <div style="padding: 2rem;">
+                <div style="background: #f0fdf4; border: 2px solid #86efac; border-radius: 12px; padding: 1.5rem; text-align: center; margin-bottom: 1.5rem;">
+                    <div style="font-size: 0.875rem; color: #065f46; margin-bottom: 0.5rem;">You will receive</div>
+                    <div style="font-size: 2.5rem; font-weight: 800; color: #059669;">
+                        $<span id="modal-amount">0.00</span>
+                    </div>
+                    <div style="font-size: 0.875rem; color: #065f46; margin-top: 0.5rem;">
+                        for <span id="modal-coins">0</span> coins
+                    </div>
+                </div>
+                
+                <form onsubmit="submitWithdraw(event)">
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem;">Payment Method</label>
+                        <select id="withdraw-method" required style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem;">
+                            <option value="">Select method...</option>
+                            <option value="jazzcash">JazzCash (Pakistan)</option>
+                            <option value="easypaisa">Easypaisa (Pakistan)</option>
+                            <option value="crypto">Cryptocurrency</option>
+                            <option value="bank">Bank Transfer</option>
+                        </select>
+                    </div>
+                    
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem;">Account Details</label>
+                        <input type="text" id="account-details" required placeholder="Enter your account number / wallet address" style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem;">
+                    </div>
+                    
+                    <button type="submit" class="btn-success" style="width: 100%; padding: 1rem; font-size: 1.125rem; background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">
+                        <i class="fas fa-paper-plane"></i> Confirm Withdrawal
+                    </button>
+                </form>
+                
+                <button onclick="closeWithdraw()" style="width: 100%; margin-top: 1rem; background: #f3f4f6; color: #64748b; border: none; padding: 0.75rem; border-radius: 8px; cursor: pointer;">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast">
+        <i class="fas fa-check-circle" style="color: #059669; font-size: 1.25rem;"></i>
+        <span id="toast-message" style="font-weight: 600;">Notification</span>
+    </div>
+
+    <script>
+        // ==================== FIREBASE CONFIG ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyC_upD5_aPjr2za4CzTJEA0l9lflGWyifw",
+            authDomain: "cointab-f3b00.firebaseapp.com",
+            projectId: "cointab-f3b00",
+            storageBucket: "cointab-f3b00.firebasestorage.app",
+            messagingSenderId: "929666382798",
+            appId: "1:929666382798:web:39ce5bc3f3dc97956a099f",
+            measurementId: "G-0GEXW812N6"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Google Auth Provider
+        const provider = new firebase.auth.GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+
+        // Configuration
+        const CONFIG = {
+            COINS_PER_AD: 10,
+            COINS_TO_DOLLAR: 10000,
+            MIN_WITHDRAW_COINS: 20000,
+            AD_DURATION: 20,
+            REFERRAL_USDT_REWARD: 1,
+            TARGET_USERS: 100000000,
+            SMARTLINKS: [
+                { url: 'https://www.effectivegatecpm.com/ma6t3kt5?key=86aa5ec86f7d9249b5010f2359ce3298', name: 'Offer 1' },
+                { url: 'https://omg10.com/4/10537538', name: 'Offer 2' }
+            ]
+        };
+
+        // State
+        let state = {
+            isLoggedIn: false,
+            user: {
+                uid: null,
+                name: '',
+                email: '',
+                picture: '',
+                referralCode: '',
+                referrals: 0,
+                usdtLocked: 0
+            },
+            coins: 0,
+            totalCoinsEarned: 0,
+            adsWatchedToday: 0,
+            currentLinkIndex: 0,
+            timerActive: false,
+            platformUsers: 1250, // will be fetched from Firestore later
+            unsubscribeUser: null
+        };
+
+        // Utility Functions
+        function coinsToDollars(coins) {
+            return (coins / CONFIG.COINS_TO_DOLLAR).toFixed(3);
+        }
+
+        function formatCoins(coins) {
+            return coins.toLocaleString();
+        }
+
+        function showError(message) {
+            const errorBox = document.getElementById('auth-error');
+            const errorText = document.getElementById('error-text');
+            errorText.textContent = message;
+            errorBox.classList.add('show');
+            setTimeout(() => {
+                errorBox.classList.remove('show');
+            }, 5000);
+        }
+
+        // Generate Referral Code
+        function generateReferralCode(uid) {
+            return 'CT' + uid.substring(0, 8).toUpperCase();
+        }
+
+        // ==================== FIREBASE AUTH ====================
+        function signInWithGoogle() {
+            auth.signInWithPopup(provider)
+                .then(async (result) => {
+                    const user = result.user;
+                    await handleUserLogin(user);
+                })
+                .catch((error) => {
+                    showError('Google Sign-In failed: ' + error.message);
+                });
+        }
+
+        // Demo Login (no Firebase)
+        function demoLogin() {
+            const demoUser = {
+                uid: 'demo123456',
+                displayName: "Demo User",
+                email: "demo@cointap.com",
+                photoURL: "https://ui-avatars.com/api/?name=Demo+User&background=f59e0b&color=fff",
+                referralCode: "CTDEMO123",
+                referrals: 0,
+                usdtLocked: 0
+            };
+            const fakeUser = {
+                uid: demoUser.uid,
+                displayName: demoUser.displayName,
+                email: demoUser.email,
+                photoURL: demoUser.photoURL
+            };
+            handleUserLogin(fakeUser, true);
+        }
+
+        // Common login handler
+        async function handleUserLogin(firebaseUser, isDemo = false) {
+            const uid = firebaseUser.uid;
+            const userRef = db.collection('users').doc(uid);
+            const doc = await userRef.get();
+
+            if (!doc.exists) {
+                // New user – create document
+                const referralCode = generateReferralCode(uid);
+                const newUser = {
+                    uid: uid,
+                    name: firebaseUser.displayName || 'User',
+                    email: firebaseUser.email || '',
+                    picture: firebaseUser.photoURL || '',
+                    referralCode: referralCode,
+                    referrals: 0,
+                    usdtLocked: 0,
+                    coins: 0,
+                    totalCoinsEarned: 0,
+                    adsWatchedToday: 0,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                await userRef.set(newUser);
+                state.user = { ...newUser, uid };
+                state.coins = 0;
+                state.totalCoinsEarned = 0;
+                state.adsWatchedToday = 0;
+            } else {
+                // Existing user – load data
+                const userData = doc.data();
+                state.user = {
+                    uid: uid,
+                    name: userData.name,
+                    email: userData.email,
+                    picture: userData.picture,
+                    referralCode: userData.referralCode,
+                    referrals: userData.referrals || 0,
+                    usdtLocked: userData.usdtLocked || 0
+                };
+                state.coins = userData.coins || 0;
+                state.totalCoinsEarned = userData.totalCoinsEarned || 0;
+                state.adsWatchedToday = userData.adsWatchedToday || 0;
+            }
+
+            // Check for referral in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const refCode = urlParams.get('ref');
+            if (refCode && refCode !== state.user.referralCode && !doc.exists) {
+                // This is a new user with referral – find referrer and update
+                const referrerSnapshot = await db.collection('users').where('referralCode', '==', refCode).get();
+                if (!referrerSnapshot.empty) {
+                    const referrerDoc = referrerSnapshot.docs[0];
+                    const referrerId = referrerDoc.id;
+                    // Increment referrer's referrals and usdtLocked
+                    await db.collection('users').doc(referrerId).update({
+                        referrals: firebase.firestore.FieldValue.increment(1),
+                        usdtLocked: firebase.firestore.FieldValue.increment(CONFIG.REFERRAL_USDT_REWARD)
+                    });
+                    showToast(`You were referred! Welcome to CoinTap 🎉`);
+                }
+            }
+
+            state.isLoggedIn = true;
+            showToast(`Welcome, ${state.user.name}! 🎉`);
+            showDashboard();
+
+            // Real-time listener for user data
+            if (state.unsubscribeUser) state.unsubscribeUser();
+            state.unsubscribeUser = userRef.onSnapshot((doc) => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    state.coins = data.coins || 0;
+                    state.totalCoinsEarned = data.totalCoinsEarned || 0;
+                    state.adsWatchedToday = data.adsWatchedToday || 0;
+                    state.user.referrals = data.referrals || 0;
+                    state.user.usdtLocked = data.usdtLocked || 0;
+                    updateUI();
+                }
+            });
+        }
+
+        function showDashboard() {
+            document.getElementById('auth-section').classList.add('hidden');
+            document.getElementById('dashboard-section').classList.remove('hidden');
+            document.getElementById('user-nav').classList.remove('hidden');
+            document.getElementById('user-nav').style.display = 'flex';
+            
+            document.getElementById('user-name').textContent = state.user.name;
+            document.getElementById('referral-code').textContent = state.user.referralCode;
+            
+            if (state.user.picture) {
+                document.getElementById('user-avatar').src = state.user.picture;
+                document.getElementById('user-avatar').style.display = 'block';
+                document.getElementById('dash-avatar').src = state.user.picture;
+                document.getElementById('dash-avatar').style.display = 'block';
+            }
+            
+            updateSmartlink();
+            updateUI();
+        }
+
+        function updateSmartlink() {
+            const link = CONFIG.SMARTLINKS[state.currentLinkIndex];
+            document.getElementById('smartlink-btn').href = link.url;
+            
+            document.getElementById('dot-0').style.background = state.currentLinkIndex === 0 ? '#f59e0b' : '#cbd5e1';
+            document.getElementById('dot-1').style.background = state.currentLinkIndex === 1 ? '#f59e0b' : '#cbd5e1';
+        }
+
+        async function startTask() {
+            if (state.timerActive) return;
+            state.timerActive = true;
+            
+            document.getElementById('task-idle').classList.add('hidden');
+            document.getElementById('task-timer').classList.remove('hidden');
+            
+            let timeLeft = CONFIG.AD_DURATION;
+            let progress = 0;
+            
+            const timer = setInterval(() => {
+                timeLeft--;
+                progress = ((CONFIG.AD_DURATION - timeLeft) / CONFIG.AD_DURATION) * 100;
+                
+                document.getElementById('timer-count').textContent = timeLeft;
+                document.getElementById('task-progress').style.width = progress + '%';
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    completeTask();
+                }
+            }, 1000);
+        }
+
+        async function completeTask() {
+            // Update local state
+            state.coins += CONFIG.COINS_PER_AD;
+            state.totalCoinsEarned += CONFIG.COINS_PER_AD;
+            state.adsWatchedToday++;
+            
+            // Update Firestore
+            const userRef = db.collection('users').doc(state.user.uid);
+            await userRef.update({
+                coins: firebase.firestore.FieldValue.increment(CONFIG.COINS_PER_AD),
+                totalCoinsEarned: firebase.firestore.FieldValue.increment(CONFIG.COINS_PER_AD),
+                adsWatchedToday: firebase.firestore.FieldValue.increment(1)
+            });
+            
+            state.currentLinkIndex = (state.currentLinkIndex + 1) % CONFIG.SMARTLINKS.length;
+            
+            document.getElementById('task-timer').classList.add('hidden');
+            document.getElementById('task-success').classList.remove('hidden');
+            
+            document.getElementById('success-total').textContent = formatCoins(state.coins);
+            document.getElementById('success-dollar').textContent = coinsToDollars(state.coins);
+            
+            updateUI();
+            showToast(`+${CONFIG.COINS_PER_AD} coins added! 🪙`);
+        }
+
+        function resetTask() {
+            state.timerActive = false;
+            document.getElementById('task-success').classList.add('hidden');
+            document.getElementById('task-idle').classList.remove('hidden');
+            document.getElementById('timer-count').textContent = CONFIG.AD_DURATION;
+            document.getElementById('task-progress').style.width = '0%';
+            
+            updateSmartlink();
+        }
+
+        function updateUI() {
+            document.getElementById('coin-balance').textContent = formatCoins(state.coins);
+            document.getElementById('nav-coins').textContent = formatCoins(state.coins);
+            document.getElementById('total-coins').textContent = formatCoins(state.totalCoinsEarned);
+            document.getElementById('daily-count').textContent = state.adsWatchedToday;
+            
+            const dollars = coinsToDollars(state.coins);
+            document.getElementById('dollar-equivalent').textContent = dollars;
+            document.getElementById('withdraw-dollars').textContent = parseFloat(dollars).toFixed(2);
+            document.getElementById('withdraw-coins').textContent = formatCoins(state.coins);
+            
+            document.getElementById('total-referrals').textContent = state.user.referrals;
+            document.getElementById('usdt-earned').textContent = state.user.usdtLocked.toFixed(2);
+            
+            document.getElementById('platform-users').textContent = state.platformUsers.toLocaleString() + ' Users';
+            
+            const progress = Math.min((state.coins / CONFIG.MIN_WITHDRAW_COINS) * 100, 100);
+            document.getElementById('withdraw-progress').textContent = progress.toFixed(1);
+            document.getElementById('withdraw-bar').style.width = progress + '%';
+            
+            const btn = document.getElementById('withdraw-btn');
+            const status = document.getElementById('withdraw-status');
+            
+            if (state.coins >= CONFIG.MIN_WITHDRAW_COINS) {
+                btn.disabled = false;
+                btn.style.background = 'linear-gradient(135deg, #059669 0%, #047857 100%)';
+                btn.style.color = 'white';
+                btn.style.cursor = 'pointer';
+                btn.innerHTML = '<i class="fas fa-unlock"></i> Withdraw Now';
+                status.innerHTML = '<i class="fas fa-check-circle" style="margin-right: 0.25rem;"></i> Ready';
+                status.style.background = '#d1fae5';
+                status.style.color = '#059669';
+            } else {
+                const needed = CONFIG.MIN_WITHDRAW_COINS - state.coins;
+                btn.disabled = true;
+                btn.style.background = '#cbd5e1';
+                btn.style.color = '#64748b';
+                btn.style.cursor = 'not-allowed';
+                btn.innerHTML = `<i class="fas fa-lock"></i> Need ${formatCoins(needed)} more coins`;
+                status.innerHTML = '<i class="fas fa-lock" style="margin-right: 0.25rem;"></i> Locked';
+                status.style.background = '#f1f5f9';
+                status.style.color = '#64748b';
+            }
+        }
+
+        function copyReferral() {
+            const link = `https://cointap.com/?ref=${state.user.referralCode}`;
+            navigator.clipboard.writeText(link).then(() => {
+                showToast('Referral link copied! Share to earn 1 USDT! 🔗');
+            });
+        }
+
+        function openWithdraw() {
+            if (state.coins < CONFIG.MIN_WITHDRAW_COINS) return;
+            
+            document.getElementById('modal-coins').textContent = formatCoins(state.coins);
+            document.getElementById('modal-amount').textContent = coinsToDollars(state.coins);
+            document.getElementById('withdraw-modal').style.display = 'flex';
+        }
+
+        function closeWithdraw() {
+            document.getElementById('withdraw-modal').style.display = 'none';
+        }
+
+        function selectMethod(method) {
+            document.querySelectorAll('.withdraw-option').forEach(el => el.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+            document.getElementById('withdraw-method').value = method;
+        }
+
+        async function submitWithdraw(e) {
+            e.preventDefault();
+            
+            const method = document.getElementById('withdraw-method').value;
+            const details = document.getElementById('account-details').value;
+            
+            if (!method || !details) {
+                showToast('Please fill all fields! ⚠️');
+                return;
+            }
+            
+            const amount = coinsToDollars(state.coins);
+            
+            // Deduct coins from Firestore
+            const userRef = db.collection('users').doc(state.user.uid);
+            await userRef.update({
+                coins: firebase.firestore.FieldValue.increment(-state.coins)
+                // You might want to store withdrawal history in a subcollection
+            });
+            
+            state.coins = 0;
+            updateUI();
+            closeWithdraw();
+            
+            showToast(`Withdrawal requested! $${amount} via ${method.toUpperCase()}! 💸`);
+        }
+
+        function handleSignOut() {
+            auth.signOut().then(() => {
+                if (state.unsubscribeUser) state.unsubscribeUser();
+                state.isLoggedIn = false;
+                location.reload();
+            });
+        }
+
+        // Auth state observer
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                await handleUserLogin(user);
+            }
+        });
+
+        // ==================== INFO MODALS ====================
+        function openInfoModal(type) {
+            const modal = document.getElementById('info-modal');
+            const title = document.getElementById('modal-title');
+            const body = document.getElementById('modal-body');
+            
+            let content = '';
+            switch(type) {
+                case 'about':
+                    title.textContent = 'About CoinTap';
+                    content = '<p>CoinTap is a revolutionary platform where you can earn coins by watching ads. Your coins can be converted to real money. Additionally, refer friends to earn USDT (locked until we reach 100 million users).</p><p class="mt-4">Join us today and start earning!</p>';
+                    break;
+                case 'privacy':
+                    title.textContent = 'Privacy Policy';
+                    content = '<p>Your privacy is important to us. We collect only the information necessary to provide our services. We do not sell your personal data to third parties.</p><p class="mt-4">For full details, please contact us.</p>';
+                    break;
+                case 'terms':
+                    title.textContent = 'Terms of Service';
+                    content = '<p>By using CoinTap, you agree to our terms. You must be at least 18 years old. We reserve the right to modify or terminate services at any time.</p><p class="mt-4">Enjoy earning!</p>';
+                    break;
+                case 'contact':
+                    title.textContent = 'Contact Us';
+                    content = '<p>Have questions or need support? Reach out to us:</p><p class="mt-2"><i class="fas fa-envelope mr-2"></i> support@cointap.com</p><p><i class="fas fa-phone mr-2"></i> +1 (800) 123-4567</p>';
+                    break;
+            }
+            body.innerHTML = content;
+            modal.style.display = 'flex';
+        }
+
+        function closeInfoModal() {
+            document.getElementById('info-modal').style.display = 'none';
+        }
+
+        // Toast
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Global click to close modals
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal-overlay')) {
+                event.target.style.display = 'none';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateUI();
+            // Listen for referral in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const refCode = urlParams.get('ref');
+            if (refCode) {
+                console.log('Referral code detected:', refCode);
+            }
+        });
+    </script>
+</body>
+</html>
