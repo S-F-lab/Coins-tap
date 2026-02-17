@@ -11,13 +11,12 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-    <!-- Optional: add analytics if needed -->
-    <!-- <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-analytics-compat.js"></script> -->
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <style>
+        /* ... (your existing styles, unchanged) ... */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         * { box-sizing: border-box; }
         body {
@@ -952,7 +951,7 @@
     </div>
 
     <script>
-        // ==================== FIREBASE CONFIG (UPDATED) ====================
+        // ==================== FIREBASE CONFIG ====================
         const firebaseConfig = {
             apiKey: "AIzaSyDcBHgYECS0ywgla_NfEf5Y3HOlD1QF4y8",
             authDomain: "coinusdt-6edb3.firebaseapp.com",
@@ -1281,7 +1280,6 @@
 
                 msgDiv.innerHTML = '<span style="color:#059669;">✅ Referral applied! You received 10 coins 🪙</span>';
                 input.value = '';
-                // UI updates via snapshot listener
 
             } catch (error) {
                 console.error(error);
@@ -1342,8 +1340,9 @@
             }
         }
 
+        // ========== FIXED: Copy referral link using current domain ==========
         function copyReferral() {
-            const link = `https://cointap.com/?ref=${state.user.referralCode}`;
+            const link = `${window.location.origin}/?ref=${state.user.referralCode}`;
             navigator.clipboard.writeText(link).then(() => {
                 showToast('Referral link copied! Share to earn 1 USDT! 🔗');
             });
