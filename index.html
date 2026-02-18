@@ -1096,7 +1096,7 @@
                 await userRef.set(newUser);
 
                 if (referredBy) {
-                    await db.collection('users').doc(referredBy).update({
+                    await db.collection('users').doc(referrerId).update({
                         referrals: firebase.firestore.FieldValue.increment(1),
                         usdtLocked: firebase.firestore.FieldValue.increment(1)
                     });
@@ -1446,5 +1446,19 @@
             if (urlParams.get('ref')) console.log('Referral detected');
         });
     </script>
+
+    <!-- ==================== ADSTERRA POPUNDER CODE (ID: 28636981) ==================== -->
+    <!-- Replace the line below with your actual Adsterra popunder code -->
+    <script type="text/javascript">
+        // PASTE YOUR ADSTERRA POPUNDER SCRIPT HERE
+        // Example: 
+        // (function() {
+        //     var s = document.createElement('script');
+        //     s.src = 'https://some-adsterra-url.com/script.js';
+        //     document.body.appendChild(s);
+        // })();
+        console.log('Adsterra popunder placeholder - replace with actual code');
+    </script>
+    <!-- ============================================================================== -->
 </body>
 </html>
