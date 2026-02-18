@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CoinTap – Watch Ads, Earn Coins & USDT</title>
     
-    <meta name="description" content="CoinTap: Watch ads earn coins, refer friends earn locked USDT. 10 coins per ad, 10000 coins = $1.00">
+    <meta name="description" content="CoinTap: Watch ads earn coins, refer friends earn locked USDT. Random coin rewards per ad!">
     
     <!-- Firebase SDK (v9 compat) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
@@ -476,12 +476,12 @@
             <div class="hero">
                 <div style="display: inline-block; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); padding: 0.5rem 1rem; border-radius: 20px; margin-bottom: 1rem; border: 2px solid #f59e0b;">
                     <span style="color: #92400e; font-weight: 700; font-size: 0.875rem;">
-                        <i class="fas fa-coins" style="margin-right: 0.5rem;"></i>10 Coins Per Ad!
+                        <i class="fas fa-coins" style="margin-right: 0.5rem;"></i>Random Coin Rewards!
                     </span>
                 </div>
                 <h1>Watch Ads, Earn <span style="color: #f59e0b;">Coins</span><br>Refer Friends, Earn <span style="color: #2563eb;">USDT</span></h1>
                 <p style="color: #64748b; max-width: 600px; margin: 0 auto 2rem; font-size: 1.125rem;">
-                    <strong>Dual Earning System:</strong> Earn 10 coins per ad (10,000 coins = $1.00). 
+                    <strong>Dual Earning System:</strong> Earn coins per ad (10,000 coins = $1.00). 
                     Plus earn <strong>1 USDT per referral</strong> (locked until 100M users)!
                 </p>
                 
@@ -528,9 +528,9 @@
                         <i class="fas fa-play-circle"></i>
                     </div>
                     <div style="font-weight: 700; font-size: 1.125rem; margin-bottom: 0.5rem;">Watch Ads</div>
-                    <p style="font-size: 0.875rem; color: #64748b;">View 15-20 second advertisements</p>
+                    <p style="font-size: 0.875rem; color: #64748b;">Earn random coins each time</p>
                     <div style="margin-top: 1rem;">
-                        <span class="coin-badge">+10 Coins</span>
+                        <span class="coin-badge">5-50 Coins</span>
                     </div>
                 </div>
                 <div class="stat-card">
@@ -655,7 +655,7 @@
                 </div>
                 <p style="color: #065f46; font-size: 0.875rem; margin-top: 1rem; font-weight: 500;">
                     <i class="fas fa-lightbulb" style="margin-right: 0.5rem; color: #f59e0b;"></i>
-                    Watch 1,000 ads (10,000 coins) to earn $1.00!
+                    Watch ads to earn coins – every ad gives a random reward!
                 </p>
             </div>
             
@@ -668,7 +668,7 @@
                     </div>
                     <div style="font-size: 2.5rem; font-weight: 800; color: #d97706;">
                         <span class="coin-badge" style="font-size: 1.5rem; padding: 0.75rem 1.5rem;">
-                            <i class="fas fa-plus" style="font-size: 0.875rem;"></i> 10 COINS
+                            <i class="fas fa-dice" style="margin-right: 0.5rem;"></i> RANDOM
                         </span>
                     </div>
                 </div>
@@ -679,18 +679,14 @@
                     </div>
                     <h3 style="font-size: 1.875rem; font-weight: 800; color: #0f172a; margin-bottom: 0.5rem;">Ready to Earn Coins?</h3>
                     <p style="color: #64748b; margin-bottom: 2rem; max-width: 400px; margin-left: auto; margin-right: auto; font-size: 1.125rem;">
-                        Click below to visit our sponsor and earn <strong>10 coins</strong> instantly!
+                        Click below to watch a sponsor ad and earn a <strong>random coin reward</strong> (5, 10, 15, or 50 coins)!
                     </p>
                     
-                    <a id="smartlink-btn" href="#" target="_blank" onclick="startTask()" class="smartlink-btn">
+                    <!-- Button triggers popunder and starts timer -->
+                    <button onclick="startTask()" class="smartlink-btn">
                         <i class="fas fa-external-link-alt"></i> 
-                        Watch Ad & Earn 10 Coins
-                    </a>
-                    
-                    <div style="margin-top: 1.5rem; display: flex; justify-content: center; gap: 0.5rem;">
-                        <span id="dot-0" style="width: 10px; height: 10px; background: #f59e0b; border-radius: 50%;"></span>
-                        <span id="dot-1" style="width: 10px; height: 10px; background: #cbd5e1; border-radius: 50%;"></span>
-                    </div>
+                        Watch Ad & Earn Coins
+                    </button>
                 </div>
                 
                 <div id="task-timer" class="hidden">
@@ -708,7 +704,7 @@
                     <div class="coin-pop" style="width: 120px; height: 120px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; box-shadow: 0 20px 25px -5px rgba(245, 158, 11, 0.4);">
                         <i class="fas fa-coins" style="font-size: 3rem; color: white;"></i>
                     </div>
-                    <h3 style="font-size: 2rem; font-weight: 800; color: #d97706; margin-bottom: 0.5rem;">+10 Coins Earned! 🎉</h3>
+                    <h3 style="font-size: 2rem; font-weight: 800; color: #d97706; margin-bottom: 0.5rem;" id="success-message">+? Coins Earned! 🎉</h3>
                     <p style="color: #64748b; margin-bottom: 1.5rem; font-size: 1.125rem;">Great job! Coins added to your balance.</p>
                     <div style="background: #f0fdf4; border: 2px solid #86efac; border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; display: inline-block;">
                         <span style="color: #065f46; font-weight: 700;">
@@ -794,7 +790,7 @@
                 </div>
             </div>
             
-            <!-- NEW: REFERRAL CODE INPUT SECTION -->
+            <!-- REFERRAL CODE INPUT SECTION -->
             <div id="referral-input-section" class="card" style="margin-top: 2rem; border: 2px solid #f59e0b;">
                 <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; color: #0f172a;">
                     <i class="fas fa-ticket-alt" style="color: #f59e0b; margin-right: 0.5rem;"></i>Have a referral code?
@@ -973,16 +969,12 @@
 
         // Configuration
         const CONFIG = {
-            COINS_PER_AD: 10,
             COINS_TO_DOLLAR: 10000,
             MIN_WITHDRAW_COINS: 20000,
             AD_DURATION: 20,
             REFERRAL_USDT_REWARD: 1,
             TARGET_USERS: 100000000,
-            SMARTLINKS: [
-                { url: 'https://www.effectivegatecpm.com/ma6t3kt5?key=86aa5ec86f7d9249b5010f2359ce3298', name: 'Offer 1' },
-                { url: 'https://omg10.com/4/10537538', name: 'Offer 2' }
-            ]
+            AD_URL: 'https://www.effectivegatecpm.com/rp3tk0jtp?key=1c26f13c68b4d2a1e631f2a860aa3939' // Direct popunder link
         };
 
         // State
@@ -1001,10 +993,10 @@
             coins: 0,
             totalCoinsEarned: 0,
             adsWatchedToday: 0,
-            currentLinkIndex: 0,
             timerActive: false,
             platformUsers: 1250,
-            unsubscribeUser: null
+            unsubscribeUser: null,
+            currentReward: 0  // store the reward for the ongoing task
         };
 
         // Utility Functions
@@ -1028,6 +1020,15 @@
 
         function generateReferralCode(uid) {
             return 'CT' + uid.substring(0, 8).toUpperCase();
+        }
+
+        // ========== RANDOM REWARD FUNCTION ==========
+        function getRandomReward() {
+            const r = Math.random() * 100; // 0 to 100
+            if (r < 40) return 5;           // 40% for 5
+            else if (r < 80) return 10;      // 40% for 10
+            else if (r < 99.9999) return 15; // 19.9999% for 15
+            else return 50;                   // 0.0001% for 50
         }
 
         // ========== AUTH ==========
@@ -1161,59 +1162,66 @@
                 document.getElementById('dash-avatar').style.display = 'block';
             }
             
-            updateSmartlink();
             updateUI();
         }
 
-        function updateSmartlink() {
-            const link = CONFIG.SMARTLINKS[state.currentLinkIndex];
-            document.getElementById('smartlink-btn').href = link.url;
-            document.getElementById('dot-0').style.background = state.currentLinkIndex === 0 ? '#f59e0b' : '#cbd5e1';
-            document.getElementById('dot-1').style.background = state.currentLinkIndex === 1 ? '#f59e0b' : '#cbd5e1';
+        // ==================== DIRECT POPUNDER FUNCTION ====================
+        function triggerAd() {
+            // Open the ad in a new tab (popunder style - will open behind current tab)
+            window.open(CONFIG.AD_URL, '_blank');
         }
 
         // ========== TASK FUNCTIONS ==========
         async function startTask() {
             if (state.timerActive) return;
-            state.timerActive = true;
             
-            document.getElementById('task-idle').classList.add('hidden');
-            document.getElementById('task-timer').classList.remove('hidden');
-            
-            let timeLeft = CONFIG.AD_DURATION;
-            const timer = setInterval(() => {
-                timeLeft--;
-                const progress = ((CONFIG.AD_DURATION - timeLeft) / CONFIG.AD_DURATION) * 100;
-                document.getElementById('timer-count').textContent = timeLeft;
-                document.getElementById('task-progress').style.width = progress + '%';
+            // Determine reward for this task
+            state.currentReward = getRandomReward();
+
+            // Open popunder immediately (direct link)
+            triggerAd();
+
+            // Short delay before starting the timer (10ms) to ensure popunder is triggered
+            setTimeout(() => {
+                state.timerActive = true;
+                document.getElementById('task-idle').classList.add('hidden');
+                document.getElementById('task-timer').classList.remove('hidden');
                 
-                if (timeLeft <= 0) {
-                    clearInterval(timer);
-                    completeTask();
-                }
-            }, 1000);
+                let timeLeft = CONFIG.AD_DURATION;
+                const timer = setInterval(() => {
+                    timeLeft--;
+                    const progress = ((CONFIG.AD_DURATION - timeLeft) / CONFIG.AD_DURATION) * 100;
+                    document.getElementById('timer-count').textContent = timeLeft;
+                    document.getElementById('task-progress').style.width = progress + '%';
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        completeTask();
+                    }
+                }, 1000);
+            }, 10);
         }
 
         async function completeTask() {
-            state.coins += CONFIG.COINS_PER_AD;
-            state.totalCoinsEarned += CONFIG.COINS_PER_AD;
+            const reward = state.currentReward;
+            state.coins += reward;
+            state.totalCoinsEarned += reward;
             state.adsWatchedToday++;
             
             await db.collection('users').doc(state.user.uid).update({
-                coins: firebase.firestore.FieldValue.increment(CONFIG.COINS_PER_AD),
-                totalCoinsEarned: firebase.firestore.FieldValue.increment(CONFIG.COINS_PER_AD),
+                coins: firebase.firestore.FieldValue.increment(reward),
+                totalCoinsEarned: firebase.firestore.FieldValue.increment(reward),
                 adsWatchedToday: firebase.firestore.FieldValue.increment(1)
             });
             
-            state.currentLinkIndex = (state.currentLinkIndex + 1) % CONFIG.SMARTLINKS.length;
-            
             document.getElementById('task-timer').classList.add('hidden');
             document.getElementById('task-success').classList.remove('hidden');
+            document.getElementById('success-message').innerHTML = `+${reward} Coins Earned! 🎉`;
             document.getElementById('success-total').textContent = formatCoins(state.coins);
             document.getElementById('success-dollar').textContent = coinsToDollars(state.coins);
             
             updateUI();
-            showToast(`+${CONFIG.COINS_PER_AD} coins added! 🪙`);
+            showToast(`+${reward} coins added! 🪙`);
         }
 
         function resetTask() {
@@ -1222,7 +1230,6 @@
             document.getElementById('task-idle').classList.remove('hidden');
             document.getElementById('timer-count').textContent = CONFIG.AD_DURATION;
             document.getElementById('task-progress').style.width = '0%';
-            updateSmartlink();
         }
 
         // ========== REFERRAL CODE APPLICATION ==========
@@ -1340,7 +1347,7 @@
             }
         }
 
-        // ========== FIXED: Copy referral link using current domain ==========
+        // ========== COPY REFERRAL LINK ==========
         function copyReferral() {
             const link = `${window.location.origin}/?ref=${state.user.referralCode}`;
             navigator.clipboard.writeText(link).then(() => {
@@ -1446,19 +1453,5 @@
             if (urlParams.get('ref')) console.log('Referral detected');
         });
     </script>
-
-    <!-- ==================== ADSTERRA POPUNDER CODE (ID: 28636981) ==================== -->
-    <!-- Replace the line below with your actual Adsterra popunder code -->
-    <script type="text/javascript">
-        // PASTE YOUR ADSTERRA POPUNDER SCRIPT HERE
-        // Example: 
-        // (function() {
-        //     var s = document.createElement('script');
-        //     s.src = 'https://some-adsterra-url.com/script.js';
-        //     document.body.appendChild(s);
-        // })();
-        console.log('Adsterra popunder placeholder - replace with actual code');
-    </script>
-    <!-- ============================================================================== -->
 </body>
 </html>
